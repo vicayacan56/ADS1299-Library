@@ -327,3 +327,30 @@ Path B is coherent and remains aligned with the long-term goal:
 3. **No test behavior is changed**.
 4. **The review recommends small metadata and CI improvements before or alongside B7**.
 5. **B7 should be narrow, test-driven, and focused on the core/HAL boundary rather than a large file move**.
+
+## Phase B7.0 - Portable core boundary plan
+
+**Status:** Complete (planning only)
+
+### What was added
+
+- **`docs/phase-b7-core-boundary-plan.md`**: Defines the intended boundary between the public Arduino facade, future portable ADS1299 core logic, `ADS1299_HAL`, and platform backends.
+
+### Planning outcome
+
+B7 should use the existing `ADS1299_HAL` as the long-term platform boundary and avoid adding another transport abstraction unless direct core-to-HAL extraction proves awkward.
+
+The recommended next step is B7.1:
+
+- Extract pure, platform-independent ADS1299 helper logic first.
+- Keep the public `ADS1299Plus` API stable.
+- Do not move SPI command execution yet.
+- Do not change examples.
+- Extend or preserve host tests during each movement.
+
+### Important notes for Phase B7.0
+
+1. **No production source files are changed**.
+2. **No examples are changed**.
+3. **No test behavior is changed**.
+4. **This phase exists to prevent B7 from becoming a broad refactor**.
