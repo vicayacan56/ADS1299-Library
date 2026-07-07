@@ -233,6 +233,26 @@ static void testPureHelpers()
     EXPECT_EQ(0xFF, ADS1299Core::clipChannelMask(0xFF, 99));
     EXPECT_EQ((uint8_t)(ADS_CMD_RREG | ADS_REG_ID), ADS1299Core::readRegisterCommand(ADS_REG_ID));
     EXPECT_EQ((uint8_t)(ADS_CMD_WREG | ADS_REG_CONFIG1), ADS1299Core::writeRegisterCommand(ADS_REG_CONFIG1));
+    EXPECT_EQ(0x96, ADS1299Core::withDataRate(0x90, ADS_DR_250));
+    EXPECT_EQ((uint8_t)(0x96 | ADS_CFG1_CLK_EN), ADS1299Core::withClockOut(0x96, true));
+    EXPECT_EQ((uint8_t)(0xFF & ~ADS_CFG1_CLK_EN), ADS1299Core::withClockOut(0xFF, false));
+    EXPECT_EQ((uint8_t)(0x96 | ADS_CFG1_MULTIPLE_READBACK), ADS1299Core::withMultipleReadback(0x96, true));
+    EXPECT_EQ((uint8_t)(0xFF & ~ADS_CFG1_MULTIPLE_READBACK), ADS1299Core::withMultipleReadback(0xFF, false));
+    EXPECT_EQ((uint8_t)(ADS_CH_DEFAULT_GAIN24() | ADS_CH_PD), ADS1299Core::withChannelPowerDown(ADS_CH_DEFAULT_GAIN24(), true));
+    EXPECT_EQ((uint8_t)(0xFF & ~ADS_CH_PD), ADS1299Core::withChannelPowerDown(0xFF, false));
+    EXPECT_EQ((uint8_t)((ADS_CH_DEFAULT_GAIN24() & 0x8F) | (ADS_GAIN_6 << 4)), ADS1299Core::withChannelGain(ADS_CH_DEFAULT_GAIN24(), ADS_GAIN_6));
+    EXPECT_EQ((uint8_t)((ADS_CH_DEFAULT_GAIN24() & 0xF8) | ADS_MUX_TESTSIG), ADS1299Core::withChannelMux(ADS_CH_DEFAULT_GAIN24(), ADS_MUX_TESTSIG));
+    EXPECT_EQ((uint8_t)(ADS_CH_DEFAULT_GAIN24() | ADS_CH_SRB2), ADS1299Core::withSRB2(ADS_CH_DEFAULT_GAIN24(), true));
+    EXPECT_EQ((uint8_t)(0xFF & ~ADS_CH_SRB2), ADS1299Core::withSRB2(0xFF, false));
+    EXPECT_EQ(ADS_MISC1_SRB1, ADS1299Core::withSRB1(0x00, true));
+    EXPECT_EQ((uint8_t)(0xFF & ~ADS_MISC1_SRB1), ADS1299Core::withSRB1(0xFF, false));
+    EXPECT_EQ(ADS_CFG3_PD_REFBUF, ADS1299Core::withInternalRef(0x00, true));
+    EXPECT_EQ(ADS_CFG3_BIASREF_INT, ADS1299Core::withBiasInternalRef(0x00, true));
+    EXPECT_EQ(ADS_CFG3_PD_BIAS, ADS1299Core::withBiasBuffer(0x00, true));
+    EXPECT_EQ(ADS_CFG3_BIAS_LOFF_SENS, ADS1299Core::withBiasLoffSense(0x00, true));
+    EXPECT_EQ(ADS_CFG3_BIAS_MEAS, ADS1299Core::withBiasMeasure(0x00, true));
+    EXPECT_EQ(ADS_CFG4_SINGLE_SHOT, ADS1299Core::withSingleShot(0x00, true));
+    EXPECT_EQ(ADS_CFG4_LOFF_COMP_EN, ADS1299Core::withLoffComparators(0x00, true));
 
     const uint8_t frame4[] = {
         0xC0, 0x12, 0x3F,

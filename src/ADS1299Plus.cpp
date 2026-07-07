@@ -357,7 +357,7 @@ bool ADS1299Plus::setDataRate(uint8_t dr3b)
   uint8_t cfg1;
   if (!readReg(ADS_REG_CONFIG1, cfg1))
     return false;
-  cfg1 = (cfg1 & 0xF8) | (dr3b & 0x07);
+  cfg1 = ADS1299Core::withDataRate(cfg1, dr3b);
   return writeReg(ADS_REG_CONFIG1, cfg1);
 }
 
@@ -366,10 +366,7 @@ bool ADS1299Plus::setClockOut(bool enable)
   uint8_t cfg1;
   if (!readReg(ADS_REG_CONFIG1, cfg1))
     return false;
-  if (enable)
-    cfg1 |= ADS_CFG1_CLK_EN;
-  else
-    cfg1 &= ~ADS_CFG1_CLK_EN;
+  cfg1 = ADS1299Core::withClockOut(cfg1, enable);
   return writeReg(ADS_REG_CONFIG1, cfg1);
 }
 
@@ -378,10 +375,7 @@ bool ADS1299Plus::setMultipleReadbackMode(bool enable)
   uint8_t cfg1;
   if (!readReg(ADS_REG_CONFIG1, cfg1))
     return false;
-  if (enable)
-    cfg1 |= ADS_CFG1_MULTIPLE_READBACK;
-  else
-    cfg1 &= ~ADS_CFG1_MULTIPLE_READBACK;
+  cfg1 = ADS1299Core::withMultipleReadback(cfg1, enable);
   return writeReg(ADS_REG_CONFIG1, cfg1);
 }
 
@@ -405,10 +399,7 @@ bool ADS1299Plus::powerDownChannel(uint8_t ch, bool pd)
   uint8_t ch_val;
   if (!readReg(chRegAddr_(ch), ch_val))
     return false;
-  if (pd)
-    ch_val |= ADS_CH_PD;
-  else
-    ch_val &= ~ADS_CH_PD;
+  ch_val = ADS1299Core::withChannelPowerDown(ch_val, pd);
   return writeReg(chRegAddr_(ch), ch_val);
 }
 
@@ -419,7 +410,7 @@ bool ADS1299Plus::setChannelGain(uint8_t ch, uint8_t gain3b)
   uint8_t ch_val;
   if (!readReg(chRegAddr_(ch), ch_val))
     return false;
-  ch_val = (ch_val & 0x8F) | ((gain3b & 0x07) << 4);
+  ch_val = ADS1299Core::withChannelGain(ch_val, gain3b);
   return writeReg(chRegAddr_(ch), ch_val);
 }
 
@@ -430,7 +421,7 @@ bool ADS1299Plus::setChannelMux(uint8_t ch, uint8_t mux3b)
   uint8_t ch_val;
   if (!readReg(chRegAddr_(ch), ch_val))
     return false;
-  ch_val = (ch_val & 0xF8) | (mux3b & 0x07);
+  ch_val = ADS1299Core::withChannelMux(ch_val, mux3b);
   return writeReg(chRegAddr_(ch), ch_val);
 }
 
@@ -441,10 +432,7 @@ bool ADS1299Plus::setSRB2(uint8_t ch, bool en)
   uint8_t ch_val;
   if (!readReg(chRegAddr_(ch), ch_val))
     return false;
-  if (en)
-    ch_val |= ADS_CH_SRB2;
-  else
-    ch_val &= ~ADS_CH_SRB2;
+  ch_val = ADS1299Core::withSRB2(ch_val, en);
   return writeReg(chRegAddr_(ch), ch_val);
 }
 
@@ -453,10 +441,7 @@ bool ADS1299Plus::enableSRB1(bool en)
   uint8_t misc1;
   if (!readReg(ADS_REG_MISC1, misc1))
     return false;
-  if (en)
-    misc1 |= ADS_MISC1_SRB1;
-  else
-    misc1 &= ~ADS_MISC1_SRB1;
+  misc1 = ADS1299Core::withSRB1(misc1, en);
   return writeReg(ADS_REG_MISC1, misc1);
 }
 
@@ -465,10 +450,7 @@ bool ADS1299Plus::useInternalRef(bool enBuf)
   uint8_t cfg3;
   if (!readReg(ADS_REG_CONFIG3, cfg3))
     return false;
-  if (enBuf)
-    cfg3 |= ADS_CFG3_PD_REFBUF;
-  else
-    cfg3 &= ~ADS_CFG3_PD_REFBUF;
+  cfg3 = ADS1299Core::withInternalRef(cfg3, enBuf);
   return writeReg(ADS_REG_CONFIG3, cfg3);
 }
 
@@ -477,10 +459,7 @@ bool ADS1299Plus::useBiasInternalRef(bool enInt)
   uint8_t cfg3;
   if (!readReg(ADS_REG_CONFIG3, cfg3))
     return false;
-  if (enInt)
-    cfg3 |= ADS_CFG3_BIASREF_INT;
-  else
-    cfg3 &= ~ADS_CFG3_BIASREF_INT;
+  cfg3 = ADS1299Core::withBiasInternalRef(cfg3, enInt);
   return writeReg(ADS_REG_CONFIG3, cfg3);
 }
 
@@ -489,10 +468,7 @@ bool ADS1299Plus::enableBiasBuffer(bool en)
   uint8_t cfg3;
   if (!readReg(ADS_REG_CONFIG3, cfg3))
     return false;
-  if (en)
-    cfg3 |= ADS_CFG3_PD_BIAS;
-  else
-    cfg3 &= ~ADS_CFG3_PD_BIAS;
+  cfg3 = ADS1299Core::withBiasBuffer(cfg3, en);
   return writeReg(ADS_REG_CONFIG3, cfg3);
 }
 
@@ -501,10 +477,7 @@ bool ADS1299Plus::routeBiasSense(bool en)
   uint8_t cfg3;
   if (!readReg(ADS_REG_CONFIG3, cfg3))
     return false;
-  if (en)
-    cfg3 |= ADS_CFG3_BIAS_LOFF_SENS;
-  else
-    cfg3 &= ~ADS_CFG3_BIAS_LOFF_SENS;
+  cfg3 = ADS1299Core::withBiasLoffSense(cfg3, en);
   return writeReg(ADS_REG_CONFIG3, cfg3);
 }
 
@@ -513,10 +486,7 @@ bool ADS1299Plus::enableBiasMeasure(bool en)
   uint8_t cfg3;
   if (!readReg(ADS_REG_CONFIG3, cfg3))
     return false;
-  if (en)
-    cfg3 |= ADS_CFG3_BIAS_MEAS;
-  else
-    cfg3 &= ~ADS_CFG3_BIAS_MEAS;
+  cfg3 = ADS1299Core::withBiasMeasure(cfg3, en);
   return writeReg(ADS_REG_CONFIG3, cfg3);
 }
 
@@ -545,10 +515,7 @@ bool ADS1299Plus::setSingleShot(bool singleShot)
   uint8_t cfg4;
   if (!readReg(ADS_REG_CONFIG4, cfg4))
     return false;
-  if (singleShot)
-    cfg4 |= ADS_CFG4_SINGLE_SHOT;
-  else
-    cfg4 &= ~ADS_CFG4_SINGLE_SHOT;
+  cfg4 = ADS1299Core::withSingleShot(cfg4, singleShot);
   return writeReg(ADS_REG_CONFIG4, cfg4);
 }
 
@@ -557,10 +524,7 @@ bool ADS1299Plus::enableLoffComparators(bool en)
   uint8_t cfg4;
   if (!readReg(ADS_REG_CONFIG4, cfg4))
     return false;
-  if (en)
-    cfg4 |= ADS_CFG4_LOFF_COMP_EN;
-  else
-    cfg4 &= ~ADS_CFG4_LOFF_COMP_EN;
+  cfg4 = ADS1299Core::withLoffComparators(cfg4, en);
   return writeReg(ADS_REG_CONFIG4, cfg4);
 }
 

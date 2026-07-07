@@ -432,3 +432,27 @@ The recommended next step is B7.1:
 
 - Host tests cover the new register/channel helpers directly.
 - Existing register sequencing tests still verify the emitted SPI byte sequences.
+
+## Phase B7.4 - Portable configuration byte helpers
+
+**Status:** Complete (narrow configuration helper extraction)
+
+### What was added
+
+- Portable `ADS1299Core::with...()` helpers for deterministic register-byte mutations used by configuration methods.
+
+### What changed
+
+- `ADS1299Plus` still reads and writes registers through the same public methods, but delegates byte updates for CONFIG1, CONFIG3, CONFIG4, CHnSET, and MISC1 to the portable core.
+
+### Compatibility notes
+
+- Register read/write sequencing is unchanged.
+- SPI traffic and acquisition behavior are unchanged.
+- Public API and examples are unchanged.
+- Validated default register values are unchanged.
+
+### Validation notes
+
+- Host tests cover the new configuration-byte helpers directly.
+- Existing host tests still verify register command sequencing and `configureDefaults()` behavior.

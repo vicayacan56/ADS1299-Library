@@ -63,6 +63,86 @@ uint8_t writeRegisterCommand(uint8_t address)
   return (uint8_t)(ADS_CMD_WREG | address);
 }
 
+static uint8_t withFlag(uint8_t value, uint8_t flag, bool enable)
+{
+  return enable ? (uint8_t)(value | flag) : (uint8_t)(value & ~flag);
+}
+
+uint8_t withDataRate(uint8_t config1, uint8_t dataRateBits)
+{
+  return (uint8_t)((config1 & 0xF8) | (dataRateBits & 0x07));
+}
+
+uint8_t withClockOut(uint8_t config1, bool enable)
+{
+  return withFlag(config1, ADS_CFG1_CLK_EN, enable);
+}
+
+uint8_t withMultipleReadback(uint8_t config1, bool enable)
+{
+  return withFlag(config1, ADS_CFG1_MULTIPLE_READBACK, enable);
+}
+
+uint8_t withChannelPowerDown(uint8_t chset, bool powerDown)
+{
+  return withFlag(chset, ADS_CH_PD, powerDown);
+}
+
+uint8_t withChannelGain(uint8_t chset, uint8_t gainBits)
+{
+  return (uint8_t)((chset & 0x8F) | ((gainBits & 0x07) << 4));
+}
+
+uint8_t withChannelMux(uint8_t chset, uint8_t muxBits)
+{
+  return (uint8_t)((chset & 0xF8) | (muxBits & 0x07));
+}
+
+uint8_t withSRB2(uint8_t chset, bool enable)
+{
+  return withFlag(chset, ADS_CH_SRB2, enable);
+}
+
+uint8_t withSRB1(uint8_t misc1, bool enable)
+{
+  return withFlag(misc1, ADS_MISC1_SRB1, enable);
+}
+
+uint8_t withInternalRef(uint8_t config3, bool enableBuffer)
+{
+  return withFlag(config3, ADS_CFG3_PD_REFBUF, enableBuffer);
+}
+
+uint8_t withBiasInternalRef(uint8_t config3, bool enableInternal)
+{
+  return withFlag(config3, ADS_CFG3_BIASREF_INT, enableInternal);
+}
+
+uint8_t withBiasBuffer(uint8_t config3, bool enable)
+{
+  return withFlag(config3, ADS_CFG3_PD_BIAS, enable);
+}
+
+uint8_t withBiasLoffSense(uint8_t config3, bool enable)
+{
+  return withFlag(config3, ADS_CFG3_BIAS_LOFF_SENS, enable);
+}
+
+uint8_t withBiasMeasure(uint8_t config3, bool enable)
+{
+  return withFlag(config3, ADS_CFG3_BIAS_MEAS, enable);
+}
+
+uint8_t withSingleShot(uint8_t config4, bool enable)
+{
+  return withFlag(config4, ADS_CFG4_SINGLE_SHOT, enable);
+}
+
+uint8_t withLoffComparators(uint8_t config4, bool enable)
+{
+  return withFlag(config4, ADS_CFG4_LOFF_COMP_EN, enable);
+}
+
 bool statusHasSync(uint32_t status)
 {
   return (status & ADS_STATUS_SYNC_MASK) == ADS_STATUS_SYNC_VAL;
