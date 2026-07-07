@@ -87,6 +87,21 @@ public:
         return false;
     }
 
+    int countSequence(uint8_t a, uint8_t b, uint8_t c) const
+    {
+        int count = 0;
+        if (tx.size() < 3) {
+            return count;
+        }
+
+        for (size_t i = 0; i + 2 < tx.size(); ++i) {
+            if (tx[i] == a && tx[i + 1] == b && tx[i + 2] == c) {
+                ++count;
+            }
+        }
+        return count;
+    }
+
     int beginCount = 0;
     int endCount = 0;
     int transactionCount = 0;
@@ -138,6 +153,25 @@ static ADS1299Plus::Pins testPins()
     return pins;
 }
 
+static void queueBeginId(FakeHAL& hal, uint8_t id)
+{
+    const uint8_t beginRx[] = {0, 0, 0, 0, 0, id};
+    hal.queueRx(beginRx, sizeof(beginRx));
+}
+
+static void queueFrame(FakeHAL& hal, uint8_t channels)
+{
+    hal.queueRx(0xC0);
+    hal.queueRx(0x00);
+    hal.queueRx(0x0F);
+
+    for (uint8_t i = 1; i <= channels; ++i) {
+        hal.queueRx(0x00);
+        hal.queueRx(0x00);
+        hal.queueRx(i);
+    }
+}
+
 static void testPureHelpers()
 {
     EXPECT_EQ(4, ADS1299Plus::channelsFromDeviceID(0x1C));
@@ -169,8 +203,7 @@ static void testHalBeginAndRegisterWrite()
     ADS1299Plus ads(hal, testPins());
 
     // begin() performs RESET, SDATAC, STOP and then RREG ID.
-    const uint8_t beginRx[] = {0, 0, 0, 0, 0, 0x1E};
-    hal.queueRx(beginRx, sizeof(beginRx));
+    queueBeginId(hal, 0x1E);
 
     EXPECT_TRUE(ads.begin());
     EXPECT_EQ(8, ads.channelCount());
@@ -193,8 +226,7 @@ static void testHalFrameDecode()
     FakeHAL hal;
     ADS1299Plus ads(hal, testPins());
 
-    const uint8_t beginRx[] = {0, 0, 0, 0, 0, 0x1E};
-    hal.queueRx(beginRx, sizeof(beginRx));
+    queueBeginId(hal, 0x1E);
     EXPECT_TRUE(ads.begin());
 
     ads.cmdRDATAC();
@@ -224,11 +256,103 @@ static void testHalFrameDecode()
     EXPECT_EQ(5, channels[7]);
 }
 
+static void testReadDataOnDemandDecode()
+{
+    FakeHAL hal;
+    ADS1299Plus ads(hal, testPins());
+
+    queueBeginId(hal, 0x1E);
+    EXPECT_TRUE(ads.begin());
+
+    // cmdRDATA consumes one transfer before the frame bytes are clocked out.
+    hal.queueRx(0x00);
+    queueFrame(hal, 8);
+
+    uint32_t status = 0;
+    int32_t channels[ADS1299Plus::MAX_CHANNELS] = {0};
+
+    EXPECT_TRUE(ads.readDataOnDemand(status, channels, ADS1299Plus::MAX_CHANNELS));
+    EXPECT_TRUE(hal.sawTx(ADS_CMD_RDATA));
+    EXPECT_EQ(0xC0000F, status);
+    EXPECT_EQ(1, channels[0]);
+    EXPECT_EQ(8, channels[7]);
+}
+
+static void testRegisterAccessBlockedDuringRdatac()
+{
+    FakeHAL hal;
+    ADS1299Plus ads(hal, testPins());
+
+    queueBeginId(hal, 0x1E);
+    EXPECT_TRUE(ads.begin());
+
+    ads.cmdRDATAC();
+
+    const size_t txBefore = hal.tx.size();
+    uint8_t value = 0;
+    EXPECT_TRUE(!ads.readReg(ADS_REG_CONFIG1, value));
+    EXPECT_TRUE(!ads.writeReg(ADS_REG_CONFIG1, ADS1299Plus::kCFG1_Default));
+    EXPECT_EQ((long long)txBefore, (long long)hal.tx.size());
+}
+
+static void testConfigureDefaultsSequences()
+{
+    FakeHAL hal;
+    ADS1299Plus ads(hal, testPins());
+
+    queueBeginId(hal, 0x1E);
+    EXPECT_TRUE(ads.begin());
+    EXPECT_TRUE(ads.configureDefaults());
+
+    EXPECT_TRUE(hal.sawSequence((uint8_t)(ADS_CMD_WREG | ADS_REG_CONFIG1), 0x00, ADS1299Plus::kCFG1_Default));
+    EXPECT_TRUE(hal.sawSequence((uint8_t)(ADS_CMD_WREG | ADS_REG_CONFIG2), 0x00, ADS1299Plus::kCFG2_Default));
+    EXPECT_TRUE(hal.sawSequence((uint8_t)(ADS_CMD_WREG | ADS_REG_CONFIG3), 0x00, ADS1299Plus::kCFG3_Default));
+    EXPECT_TRUE(hal.sawSequence((uint8_t)(ADS_CMD_WREG | ADS_REG_LOFF), 0x00, ADS1299Plus::kLOFF_Default));
+    EXPECT_TRUE(hal.sawSequence((uint8_t)(ADS_CMD_WREG | ADS_REG_CONFIG4), 0x00, ADS1299Plus::kCFG4_Default));
+
+    EXPECT_EQ(1, hal.countSequence((uint8_t)(ADS_CMD_WREG | ADS_REG_CH1SET), 0x00, ADS1299Plus::kCH_Default()));
+    EXPECT_EQ(1, hal.countSequence((uint8_t)(ADS_CMD_WREG | ADS_REG_CH8SET), 0x00, ADS1299Plus::kCH_Default()));
+}
+
+static void testDetectedVariantsAndFrameSizes()
+{
+    const uint8_t ids[] = {0x1C, 0x1D, 0x1E};
+    const uint8_t channels[] = {4, 6, 8};
+
+    for (size_t i = 0; i < 3; ++i) {
+        FakeHAL hal;
+        ADS1299Plus ads(hal, testPins());
+
+        queueBeginId(hal, ids[i]);
+        EXPECT_TRUE(ads.begin());
+        EXPECT_EQ(channels[i], ads.channelCount());
+        EXPECT_EQ((uint16_t)(ADS1299Plus::STATUS_BYTES + ADS1299Plus::BYTES_PER_CHANNEL * channels[i]), ads.bytesPerFrame());
+
+        ads.cmdRDATAC();
+        queueFrame(hal, channels[i]);
+
+        uint32_t status = 0;
+        int32_t out[ADS1299Plus::MAX_CHANNELS] = {0};
+
+        EXPECT_TRUE(ads.readFrameRDATAC(status, out, ADS1299Plus::MAX_CHANNELS));
+        EXPECT_EQ(0xC0000F, status);
+        EXPECT_EQ(1, out[0]);
+        EXPECT_EQ(channels[i], out[channels[i] - 1]);
+        if (channels[i] < ADS1299Plus::MAX_CHANNELS) {
+            EXPECT_EQ(0, out[channels[i]]);
+        }
+    }
+}
+
 int main()
 {
     testPureHelpers();
     testHalBeginAndRegisterWrite();
     testHalFrameDecode();
+    testReadDataOnDemandDecode();
+    testRegisterAccessBlockedDuringRdatac();
+    testConfigureDefaultsSequences();
+    testDetectedVariantsAndFrameSizes();
 
     if (g_failures != 0) {
         printf("host tests failed: %d\n", g_failures);

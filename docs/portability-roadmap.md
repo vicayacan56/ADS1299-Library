@@ -230,3 +230,20 @@ No API changes. ADS1299Plus and examples remain fully compatible.
 1. **No external test framework is required**.
 2. **These tests do not require Arduino IDE, a board, or an ADS1299 device**.
 3. **Hardware validation remains required** for real SPI electrical behavior, timing margins, and long-running acquisition.
+
+## Phase B4.1 - Expanded host-side coverage
+
+**Status:** In progress (no hardware required)
+
+### What was added
+
+- `readDataOnDemand()` frame decode coverage with known bytes.
+- Register-access guard checks while RDATAC is active.
+- `configureDefaults()` command sequencing checks for key validated registers and channel setup.
+- ADS1299-4, ADS1299-6, and ADS1299 variant detection plus frame-size checks.
+
+### Important notes for Phase B4.1
+
+1. **The tests still use only local stubs and FakeHAL**.
+2. **No production source files or examples are changed by this phase**.
+3. **The checks focus on regression protection for the HAL integration path**.

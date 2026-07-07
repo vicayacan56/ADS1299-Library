@@ -12,6 +12,10 @@ They use minimal local stubs for `Arduino.h` and `SPI.h`, plus a `FakeHAL` that 
 - HAL-backed `ADS1299Plus::begin()`
 - Register write command sequencing
 - RDATAC frame decode with known bytes
+- `readDataOnDemand()` frame decode
+- Register access blocking while RDATAC is active
+- `configureDefaults()` command sequencing
+- ADS1299-4, ADS1299-6, and ADS1299 frame sizes
 
 ## Build and run
 
