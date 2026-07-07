@@ -301,3 +301,29 @@ No API changes. ADS1299Plus and examples remain fully compatible.
 1. **No production source files are changed**.
 2. **No examples are changed**.
 3. **The documentation keeps the classic Arduino path as the default recommendation while exposing the HAL path as opt-in**.
+
+## Phase B6 - Critical review of Path B
+
+**Status:** Complete (review only)
+
+### What was added
+
+- **`docs/b6-critical-review.md`**: Critical review of the Path B work completed so far, including architecture, HAL direction, reference usage, validation coverage, user simplicity, and B7 readiness.
+
+### Review outcome
+
+Path B is coherent and remains aligned with the long-term goal:
+
+- Keep the public Arduino library simple and intuitive.
+- Preserve the classic `ADS1299Plus` / `ADS1299_SafeSPI` path.
+- Keep HAL usage optional while it matures.
+- Avoid broad refactors before the portable core boundary is clear.
+- Treat the current HAL integration as a transitional bridge, not yet as a fully extracted portable core.
+
+### Important notes for Phase B6
+
+1. **No production source files are changed**.
+2. **No examples are changed**.
+3. **No test behavior is changed**.
+4. **The review recommends small metadata and CI improvements before or alongside B7**.
+5. **B7 should be narrow, test-driven, and focused on the core/HAL boundary rather than a large file move**.
