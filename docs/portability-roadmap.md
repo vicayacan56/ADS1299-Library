@@ -285,3 +285,19 @@ No API changes. ADS1299Plus and examples remain fully compatible.
 1. **No hardware is required in CI**.
 2. **The workflow does not build Arduino sketches**; it only validates host-side regression tests.
 3. **This gives an automated safety net before larger core extraction work**.
+
+## Phase B5 - Documentation for HAL usage and validation
+
+**Status:** In progress (documentation only)
+
+### What was added
+
+- **`docs/hal-usage-guide.md`**: Explains the classic Arduino/SafeSPI path and the optional Arduino HAL path.
+- **`docs/testing-without-hardware.md`**: Explains Arduino compile validation, host-side tests, CI, and remaining hardware validation needs.
+- **`README.md` updates**: Adds the HAL path, host-side test command, and links to the detailed documentation.
+
+### Important notes for Phase B5
+
+1. **No production source files are changed**.
+2. **No examples are changed**.
+3. **The documentation keeps the classic Arduino path as the default recommendation while exposing the HAL path as opt-in**.

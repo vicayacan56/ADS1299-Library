@@ -19,7 +19,7 @@ ADS1299Plus is an Arduino-compatible C++ driver for the Texas Instruments ADS129
 
 ## Current status
 
-This version is Arduino-compatible.
+This version is Arduino-compatible and now includes an optional HAL-backed Arduino path.
 
 It is intended for boards and environments that provide:
 
@@ -28,7 +28,7 @@ It is intended for boards and environments that provide:
 - GPIO functions
 - delay and delayMicroseconds functions
 
-The library is not yet a fully platform-independent C++ driver. Future versions may separate the ADS1299 logic from the Arduino backend using a HAL interface.
+The classic `ADS1299_SafeSPI` path remains the default and is used by the original examples. The optional `ADS1299_ArduinoHAL` path is available for portability work and future backend development.
 
 ## Examples
 
@@ -36,6 +36,46 @@ See:
 
 - `examples/RegisterDump`
 - `examples/BasicRead`
+- `examples/HalBasedRead`
+
+`BasicRead` and `RegisterDump` use the classic Arduino/SafeSPI path. `HalBasedRead` exercises the optional Arduino HAL path.
+
+## Usage paths
+
+Classic Arduino path:
+
+```cpp
+ADS1299_SafeSPI adsSpi(PIN_CS);
+ADS1299Plus ads(adsSpi, adsPins);
+```
+
+Optional Arduino HAL path:
+
+```cpp
+ADS1299_ArduinoHAL adsHal(PIN_CS, PIN_START, PIN_RESET, PIN_PWDN, PIN_DRDY);
+ADS1299Plus ads(adsHal, adsPins);
+```
+
+See `docs/hal-usage-guide.md` for details.
+
+## Testing without hardware
+
+You can compile the Arduino examples without a connected board by using Arduino IDE `Verify/Compile`.
+
+The repository also includes host-side tests that run with a desktop `g++` compiler:
+
+```powershell
+g++ -std=c++11 -I tests/host/arduino_stubs -I src -I src/hal tests/host/test_ads1299_host.cpp src/ADS1299Plus.cpp src/ADS1299_SafeSPI.cpp -o tests/host/test_ads1299_host.exe
+.\tests\host\test_ads1299_host.exe
+```
+
+Expected output:
+
+```text
+host tests passed
+```
+
+See `docs/testing-without-hardware.md` for details.
 
 ## PWDN pin
 
@@ -55,17 +95,22 @@ src/
   ADS1299_SafeSPI.h
   ADS1299_SafeSPI.cpp
   ADS1299_Registers.h
+  hal/
+  arduino/
 
 examples/
   BasicRead/
   RegisterDump/
+  HalBasedRead/
 
 docs/
+  hal-usage-guide.md
+  testing-without-hardware.md
   portability-roadmap.md
-  uno-q-eeg-midi.md
+
+tests/
+  host/
 
 ## Roadmap
 
-The current implementation depends on Arduino APIs.
-
-A future version will separate the ADS1299 core driver from the platform layer using a HAL interface.
+The current public API remains Arduino-compatible. Portability work is tracked in `docs/portability-roadmap.md`.
