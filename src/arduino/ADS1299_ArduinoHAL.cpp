@@ -69,9 +69,9 @@ ADS1299_ArduinoHAL::~ADS1299_ArduinoHAL()
  */
 void ADS1299_ArduinoHAL::begin()
 {
-    // Initialize SPI library with default settings
-    // The application may have already called SPI.begin(),
-    // so we just configure the pins we need
+    // Initialize SPI library; transaction-specific settings are applied by
+    // beginTransaction().
+    SPI.begin();
     
     // Configure GPIO pins as outputs
     pinMode(m_csPin, OUTPUT);
@@ -107,7 +107,7 @@ void ADS1299_ArduinoHAL::begin()
  */
 void ADS1299_ArduinoHAL::end()
 {
-    // Reserved for future use (e.g., SPI.end() if needed)
+    SPI.end();
 }
 
 /**

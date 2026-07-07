@@ -7,6 +7,7 @@
 #pragma once
 #include <Arduino.h>
 #include <SPI.h>
+#include "hal/ADS1299_HAL.h"
 
 class ADS1299_SafeSPI
 {
@@ -17,6 +18,11 @@ public:
   // more than one SPI peripheral can pass another SPIClass instance.
   explicit ADS1299_SafeSPI(uint8_t csPin,
                            SPIClass& spi = SPI,
+                           uint32_t spiHz = DEFAULT_SPI_HZ);
+
+  // Optional HAL-backed constructor. This is additive: the Arduino constructor
+  // above remains the default path used by existing sketches.
+  explicit ADS1299_SafeSPI(ADS1299_HAL& hal,
                            uint32_t spiHz = DEFAULT_SPI_HZ);
 
   // begin()/end() are idempotent to tolerate sketches that initialize the
@@ -32,7 +38,9 @@ public:
 
 private:
   uint8_t csPin_;
-  SPIClass& spi_;
+  SPIClass* spi_;
+  ADS1299_HAL* hal_;
   uint32_t spiHz_;
   bool active_ = false;
+  bool useHal_ = false;
 };

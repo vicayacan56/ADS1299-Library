@@ -140,3 +140,21 @@ No API changes. ADS1299Plus and examples remain fully compatible.
 1. **ADS1299Plus does not use these HAL transactions yet**. The current driver still uses `ADS1299Plus` and `ADS1299_SafeSPI` exactly as before.
 2. **No acquisition behavior changes**. Frame reading, register values, SPI timing, and examples remain untouched.
 3. **This is still passive infrastructure**. The new transaction API prepares the HAL for future core integration without changing the public Arduino-compatible API.
+
+## Phase B2.2 - SafeSPI optional HAL path
+
+**Status:** In progress (additive transport path)
+
+### What was added
+
+- **`ADS1299_SafeSPI(ADS1299_HAL& hal, uint32_t spiHz)`**: Optional constructor for HAL-backed SPI transport.
+- **Dual-path transport methods**: `begin()`, `end()`, `select()`, `deselect()`, `xfer()`, and `waitDecode()` now dispatch to either the existing Arduino SPI path or the optional HAL path.
+- **Preserved Arduino path**: Existing sketches that construct `ADS1299_SafeSPI` with a CS pin and `SPIClass` continue to use the same Arduino APIs and SPI settings.
+- **Arduino HAL SPI lifecycle**: `ADS1299_ArduinoHAL::begin()` / `end()` now call `SPI.begin()` / `SPI.end()` so the HAL path owns the same SPI lifecycle as the existing SafeSPI Arduino path.
+
+### Important notes for Phase B2.2
+
+1. **ADS1299Plus still uses the same public constructor and acquisition code**. No ADS1299Plus integration has been done yet.
+2. **The HAL path is opt-in** through the new SafeSPI constructor.
+3. **Validated SPI behavior is preserved**: MSB-first, MODE1, and the caller-provided SPI clock remain the transport settings.
+4. **Examples remain unchanged** and continue to exercise the Arduino path.
