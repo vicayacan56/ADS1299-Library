@@ -247,3 +247,21 @@ No API changes. ADS1299Plus and examples remain fully compatible.
 1. **The tests still use only local stubs and FakeHAL**.
 2. **No production source files or examples are changed by this phase**.
 3. **The checks focus on regression protection for the HAL integration path**.
+
+## Phase B4.2 - Negative host-side coverage
+
+**Status:** In progress (no hardware required)
+
+### What was added
+
+- Invalid ADS1299 device ID rejection tests.
+- Invalid STATUS sync rejection tests for RDATAC frames.
+- Insufficient frame capacity rejection tests.
+- `readDataOnDemand()` guard tests while RDATAC is active.
+- `end()` sequencing checks to confirm STOP, SDATAC, HAL transaction release, and HAL shutdown.
+
+### Important notes for Phase B4.2
+
+1. **These tests protect failure paths and lifecycle behavior**.
+2. **No production source files or examples are changed by this phase**.
+3. **Hardware validation is still needed for electrical and timing behavior**.

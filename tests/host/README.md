@@ -16,6 +16,11 @@ They use minimal local stubs for `Arduino.h` and `SPI.h`, plus a `FakeHAL` that 
 - Register access blocking while RDATAC is active
 - `configureDefaults()` command sequencing
 - ADS1299-4, ADS1299-6, and ADS1299 frame sizes
+- invalid device ID rejection
+- invalid STATUS sync rejection
+- insufficient frame capacity rejection
+- `readDataOnDemand()` blocking while RDATAC is active
+- `end()` shutdown sequencing through the HAL path
 
 ## Build and run
 

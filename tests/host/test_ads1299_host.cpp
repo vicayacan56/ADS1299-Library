@@ -344,6 +344,101 @@ static void testDetectedVariantsAndFrameSizes()
     }
 }
 
+static void testBeginRejectsInvalidIds()
+{
+    const uint8_t invalidIds[] = {
+        0x00, // not ADS1299 family
+        0x10, // fixed bit set, wrong DEV_ID
+        0x1F  // ADS1299 DEV_ID with reserved channel code
+    };
+
+    for (size_t i = 0; i < sizeof(invalidIds); ++i) {
+        FakeHAL hal;
+        ADS1299Plus ads(hal, testPins());
+
+        queueBeginId(hal, invalidIds[i]);
+        EXPECT_TRUE(!ads.begin());
+    }
+}
+
+static void testFrameRejectsInvalidSync()
+{
+    FakeHAL hal;
+    ADS1299Plus ads(hal, testPins());
+
+    queueBeginId(hal, 0x1E);
+    EXPECT_TRUE(ads.begin());
+    ads.cmdRDATAC();
+
+    hal.queueRx(0xA0);
+    hal.queueRx(0x00);
+    hal.queueRx(0x0F);
+    for (uint8_t i = 1; i <= 8; ++i) {
+        hal.queueRx(0x00);
+        hal.queueRx(0x00);
+        hal.queueRx(i);
+    }
+
+    uint32_t status = 0;
+    int32_t channels[ADS1299Plus::MAX_CHANNELS] = {0};
+
+    EXPECT_TRUE(!ads.readFrameRDATAC(status, channels, ADS1299Plus::MAX_CHANNELS));
+    EXPECT_EQ(0xA0000F, status);
+}
+
+static void testFrameRejectsInsufficientCapacity()
+{
+    FakeHAL hal;
+    ADS1299Plus ads(hal, testPins());
+
+    queueBeginId(hal, 0x1E);
+    EXPECT_TRUE(ads.begin());
+    ads.cmdRDATAC();
+
+    uint32_t status = 0;
+    int32_t channels[ADS1299Plus::MAX_CHANNELS] = {0};
+    const size_t txBefore = hal.tx.size();
+
+    EXPECT_TRUE(!ads.readFrameRDATAC(status, channels, 7));
+    EXPECT_EQ((long long)txBefore, (long long)hal.tx.size());
+}
+
+static void testReadDataOnDemandBlockedDuringRdatac()
+{
+    FakeHAL hal;
+    ADS1299Plus ads(hal, testPins());
+
+    queueBeginId(hal, 0x1E);
+    EXPECT_TRUE(ads.begin());
+    ads.cmdRDATAC();
+
+    uint32_t status = 0;
+    int32_t channels[ADS1299Plus::MAX_CHANNELS] = {0};
+    const size_t txBefore = hal.tx.size();
+
+    EXPECT_TRUE(!ads.readDataOnDemand(status, channels, ADS1299Plus::MAX_CHANNELS));
+    EXPECT_EQ((long long)txBefore, (long long)hal.tx.size());
+}
+
+static void testEndStopsContinuousModeAndReleasesHal()
+{
+    FakeHAL hal;
+    ADS1299Plus ads(hal, testPins());
+
+    queueBeginId(hal, 0x1E);
+    EXPECT_TRUE(ads.begin());
+    ads.cmdRDATAC();
+    EXPECT_TRUE(ads.isRDATACActive());
+
+    ads.end();
+
+    EXPECT_TRUE(!ads.isRDATACActive());
+    EXPECT_TRUE(hal.sawTx(ADS_CMD_STOP));
+    EXPECT_TRUE(hal.sawTx(ADS_CMD_SDATAC));
+    EXPECT_EQ(1, hal.endTransactionCount);
+    EXPECT_EQ(1, hal.endCount);
+}
+
 int main()
 {
     testPureHelpers();
@@ -353,6 +448,11 @@ int main()
     testRegisterAccessBlockedDuringRdatac();
     testConfigureDefaultsSequences();
     testDetectedVariantsAndFrameSizes();
+    testBeginRejectsInvalidIds();
+    testFrameRejectsInvalidSync();
+    testFrameRejectsInsufficientCapacity();
+    testReadDataOnDemandBlockedDuringRdatac();
+    testEndStopsContinuousModeAndReleasesHal();
 
     if (g_failures != 0) {
         printf("host tests failed: %d\n", g_failures);
