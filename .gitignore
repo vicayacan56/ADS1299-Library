@@ -16,6 +16,7 @@ build/
 *.map
 *.o
 *.d
+*.exe
 
 # OS files
 .DS_Store

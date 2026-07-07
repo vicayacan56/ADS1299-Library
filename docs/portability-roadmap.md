@@ -207,3 +207,26 @@ No API changes. ADS1299Plus and examples remain fully compatible.
 1. **The original examples remain unchanged**.
 2. **HAL usage remains opt-in**. Users can keep using `ADS1299_SafeSPI` directly or choose the HAL-backed constructor.
 3. **Hardware behavior should be compared against BasicRead** once an ADS1299 board is available.
+
+## Phase B4.0 - Host-side validation scaffolding
+
+**Status:** In progress (no hardware required)
+
+### What was added
+
+- **`tests/host/arduino_stubs/`**: Minimal `Arduino.h` and `SPI.h` stubs for desktop compilation.
+- **`tests/host/test_ads1299_host.cpp`**: A lightweight test runner with a `FakeHAL`.
+- **`tests/host/README.md`**: Build and run instructions for host-side tests.
+
+### Initial host-side coverage
+
+- Pure helpers: `channelsFromDeviceID()`, `unpack24()`, and STATUS decoding.
+- HAL-backed `ADS1299Plus::begin()` path using a queued fake device ID.
+- Register write command sequencing through the HAL path.
+- RDATAC frame decoding from known bytes without an ADS1299 device.
+
+### Important notes for Phase B4.0
+
+1. **No external test framework is required**.
+2. **These tests do not require Arduino IDE, a board, or an ADS1299 device**.
+3. **Hardware validation remains required** for real SPI electrical behavior, timing margins, and long-running acquisition.
