@@ -221,10 +221,18 @@ static void testPureHelpers()
     EXPECT_TRUE(ADS1299Core::validRegisterRange(ADS_REG_ID, ADS_REG_CONFIG4 + 1));
     EXPECT_TRUE(!ADS1299Core::validRegisterRange(ADS_REG_CONFIG4, 2));
     EXPECT_TRUE(!ADS1299Core::validRegisterRange(ADS_REG_ID, 0));
+    EXPECT_TRUE(ADS1299Core::isValidChannel(1, 4));
+    EXPECT_TRUE(ADS1299Core::isValidChannel(4, 4));
+    EXPECT_TRUE(!ADS1299Core::isValidChannel(0, 4));
+    EXPECT_TRUE(!ADS1299Core::isValidChannel(5, 4));
+    EXPECT_EQ(ADS_REG_CH1SET, ADS1299Core::channelRegisterAddress(1));
+    EXPECT_EQ(ADS_REG_CH8SET, ADS1299Core::channelRegisterAddress(8));
     EXPECT_EQ(0x0F, ADS1299Core::clipChannelMask(0xFF, 4));
     EXPECT_EQ(0x3F, ADS1299Core::clipChannelMask(0xFF, 6));
     EXPECT_EQ(0xFF, ADS1299Core::clipChannelMask(0xFF, 8));
     EXPECT_EQ(0xFF, ADS1299Core::clipChannelMask(0xFF, 99));
+    EXPECT_EQ((uint8_t)(ADS_CMD_RREG | ADS_REG_ID), ADS1299Core::readRegisterCommand(ADS_REG_ID));
+    EXPECT_EQ((uint8_t)(ADS_CMD_WREG | ADS_REG_CONFIG1), ADS1299Core::writeRegisterCommand(ADS_REG_CONFIG1));
 
     const uint8_t frame4[] = {
         0xC0, 0x12, 0x3F,

@@ -31,6 +31,16 @@ bool validRegisterRange(uint8_t startAddr, size_t n)
          (size_t)startAddr + n - 1 <= ADS_REG_CONFIG4;
 }
 
+bool isValidChannel(uint8_t channel, uint8_t channelCount)
+{
+  return channel >= 1 && channel <= channelCount;
+}
+
+uint8_t channelRegisterAddress(uint8_t channel)
+{
+  return (uint8_t)(ADS_REG_CH1SET + (channel - 1));
+}
+
 uint8_t clipChannelMask(uint8_t mask, uint8_t channelCount)
 {
   static const uint8_t lut[9] = {
@@ -41,6 +51,16 @@ uint8_t clipChannelMask(uint8_t mask, uint8_t channelCount)
     channelCount = MAX_CHANNELS;
 
   return (uint8_t)(mask & lut[channelCount]);
+}
+
+uint8_t readRegisterCommand(uint8_t address)
+{
+  return (uint8_t)(ADS_CMD_RREG | address);
+}
+
+uint8_t writeRegisterCommand(uint8_t address)
+{
+  return (uint8_t)(ADS_CMD_WREG | address);
 }
 
 bool statusHasSync(uint32_t status)

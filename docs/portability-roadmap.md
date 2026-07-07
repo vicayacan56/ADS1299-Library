@@ -405,3 +405,30 @@ The recommended next step is B7.1:
 ### Validation notes
 
 - Host tests now exercise `ADS1299Core::decodeFrame()` directly, including valid sync, invalid sync, sample sign extension, and capacity rejection.
+
+## Phase B7.3 - Portable register and channel helpers
+
+**Status:** Complete (narrow protocol helper extraction)
+
+### What was added
+
+- `ADS1299Core::isValidChannel()`
+- `ADS1299Core::channelRegisterAddress()`
+- `ADS1299Core::readRegisterCommand()`
+- `ADS1299Core::writeRegisterCommand()`
+
+### What changed
+
+- `ADS1299Plus` now delegates channel validation, channel register addressing, and RREG/WREG opcode construction to the portable core.
+
+### Compatibility notes
+
+- SPI command execution remains in `ADS1299Plus`.
+- Register read/write byte order is unchanged.
+- RDATAC/RDATA acquisition flow is unchanged.
+- Public API and examples are unchanged.
+
+### Validation notes
+
+- Host tests cover the new register/channel helpers directly.
+- Existing register sequencing tests still verify the emitted SPI byte sequences.

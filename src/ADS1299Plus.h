@@ -211,8 +211,8 @@ private:
   void waitMs_(uint32_t ms) const;
   void waitDecode_() const;
 
-  bool validCh_(uint8_t ch) const { return ch >= 1 && ch <= num_channels_; }
-  static inline uint8_t chRegAddr_(uint8_t ch) { return ADS_REG_CH1SET + (ch - 1); }
+  bool validCh_(uint8_t ch) const { return ADS1299Core::isValidChannel(ch, num_channels_); }
+  static inline uint8_t chRegAddr_(uint8_t ch) { return ADS1299Core::channelRegisterAddress(ch); }
   uint8_t clipMask_(uint8_t mask) const { return ADS1299Core::clipChannelMask(mask, num_channels_); }
   static inline bool validRegRange_(uint8_t startAddr, size_t n) {
     return ADS1299Core::validRegisterRange(startAddr, n);

@@ -290,7 +290,7 @@ bool ADS1299Plus::writeOne_(uint8_t addr, uint8_t val)
     return false;
 
   spi_->select();
-  spi_->xfer(ADS_CMD_WREG | addr);
+  spi_->xfer(ADS1299Core::writeRegisterCommand(addr));
   spi_->xfer(0x00); // escribir 1 registro: n-1 = 0.
   spi_->xfer(val);
   spi_->deselect();
@@ -304,7 +304,7 @@ bool ADS1299Plus::readOne_(uint8_t addr, uint8_t &val)
     return false;
 
   spi_->select();
-  spi_->xfer(ADS_CMD_RREG | addr);
+  spi_->xfer(ADS1299Core::readRegisterCommand(addr));
   spi_->xfer(0x00); // leer 1 registro: n-1 = 0.
   val = spi_->xfer(ADS_CMD_NOP);
   spi_->deselect();
@@ -318,7 +318,7 @@ bool ADS1299Plus::writeBurst_(uint8_t startAddr, const uint8_t *data, size_t n)
     return false;
 
   spi_->select();
-  spi_->xfer(ADS_CMD_WREG | startAddr);
+  spi_->xfer(ADS1299Core::writeRegisterCommand(startAddr));
   spi_->xfer((uint8_t)(n - 1));
   for (size_t i = 0; i < n; ++i)
   {
@@ -335,7 +335,7 @@ bool ADS1299Plus::readBurst_(uint8_t startAddr, uint8_t *data, size_t n)
     return false;
 
   spi_->select();
-  spi_->xfer(ADS_CMD_RREG | startAddr);
+  spi_->xfer(ADS1299Core::readRegisterCommand(startAddr));
   spi_->xfer((uint8_t)(n - 1));
   for (size_t i = 0; i < n; ++i)
   {

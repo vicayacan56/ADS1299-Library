@@ -18,7 +18,11 @@ static constexpr uint16_t BYTES_PER_FRAME_MAX =
 uint8_t channelsFromDeviceID(uint8_t id);
 uint16_t bytesPerFrame(uint8_t channelCount);
 bool validRegisterRange(uint8_t startAddr, size_t n);
+bool isValidChannel(uint8_t channel, uint8_t channelCount);
+uint8_t channelRegisterAddress(uint8_t channel);
 uint8_t clipChannelMask(uint8_t mask, uint8_t channelCount);
+uint8_t readRegisterCommand(uint8_t address);
+uint8_t writeRegisterCommand(uint8_t address);
 
 bool statusHasSync(uint32_t status);
 uint8_t statusLoffP(uint32_t status);
