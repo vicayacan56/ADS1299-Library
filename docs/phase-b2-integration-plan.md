@@ -1,10 +1,12 @@
 # Phase B2: HAL Integration Planning
 
-**Status:** Analysis & Planning Only (No Refactoring Yet)
+**Status:** Historical Phase B2 Integration Plan
 
 **Date:** 2026-07-07
 
 **Branch:** `portable-core-hal`
+
+**Current-use note:** This document records the Phase B2 implementation plan. Some code blocks are planning snippets, not a promise that the current source matches them line-for-line. For current usage and validation status, see `README.md`, `docs/hal-usage-guide.md`, `docs/testing-without-hardware.md`, and `docs/portability-roadmap.md`.
 
 ---
 

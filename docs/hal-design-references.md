@@ -1,10 +1,12 @@
 # HAL Design References — Phase B2.0 Technical Study
 
-**Status:** Technical Reference & Design Study (No Code Refactoring)
+**Status:** Technical Reference & Design Study
 
 **Date:** 2026-07-07
 
 **Branch:** `portable-core-hal`
+
+**Current-use note:** This document records the Phase B2.0 design study and reference reasoning. Some snippets are planning examples. For current user-facing usage and implementation status, see `README.md`, `docs/hal-usage-guide.md`, and `docs/portability-roadmap.md`.
 
 **Document Purpose:** Define HAL design principles and neutral interfaces before Phase B2.1 implementation.
 
