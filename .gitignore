@@ -1,0 +1,22 @@
+# PlatformIO local files
+.pio/
+platformio.ini
+src/main.cpp
+src/pio_examples/
+
+# VS Code local workspace
+.vscode/
+
+# Build files
+build/
+.cache/
+*.elf
+*.bin
+*.hex
+*.map
+*.o
+*.d
+
+# OS files
+.DS_Store
+Thumbs.db
