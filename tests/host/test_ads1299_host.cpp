@@ -225,6 +225,35 @@ static void testPureHelpers()
     EXPECT_EQ(0x3F, ADS1299Core::clipChannelMask(0xFF, 6));
     EXPECT_EQ(0xFF, ADS1299Core::clipChannelMask(0xFF, 8));
     EXPECT_EQ(0xFF, ADS1299Core::clipChannelMask(0xFF, 99));
+
+    const uint8_t frame4[] = {
+        0xC0, 0x12, 0x3F,
+        0x00, 0x00, 0x01,
+        0xFF, 0xFF, 0xFF,
+        0x80, 0x00, 0x00,
+        0x7F, 0xFF, 0xFF
+    };
+    uint32_t decodedStatus = 0;
+    int32_t decodedChannels[ADS1299Core::MAX_CHANNELS] = {99, 99, 99, 99, 99, 99, 99, 99};
+    EXPECT_TRUE(ADS1299Core::decodeFrame(frame4, 4, decodedStatus, decodedChannels, ADS1299Core::MAX_CHANNELS));
+    EXPECT_EQ(0xC0123F, decodedStatus);
+    EXPECT_EQ(1, decodedChannels[0]);
+    EXPECT_EQ(-1, decodedChannels[1]);
+    EXPECT_EQ(-8388608, decodedChannels[2]);
+    EXPECT_EQ(8388607, decodedChannels[3]);
+    EXPECT_EQ(0, decodedChannels[4]);
+
+    const uint8_t badSyncFrame[] = {
+        0xA0, 0x00, 0x0F,
+        0x00, 0x00, 0x02,
+        0x00, 0x00, 0x03,
+        0x00, 0x00, 0x04,
+        0x00, 0x00, 0x05
+    };
+    EXPECT_TRUE(!ADS1299Core::decodeFrame(badSyncFrame, 4, decodedStatus, decodedChannels, 4));
+    EXPECT_EQ(0xA0000F, decodedStatus);
+    EXPECT_EQ(2, decodedChannels[0]);
+    EXPECT_TRUE(!ADS1299Core::decodeFrame(frame4, 4, decodedStatus, decodedChannels, 3));
 }
 
 static void testHalBeginAndRegisterWrite()

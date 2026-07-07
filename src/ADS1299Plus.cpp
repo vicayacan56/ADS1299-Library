@@ -592,20 +592,7 @@ bool ADS1299Plus::readFrameRDATAC(uint32_t &status24, int32_t *chOut, size_t cap
   }
   spi_->deselect();
 
-  status24 = ((uint32_t)rxBuf[0] << 16) | ((uint32_t)rxBuf[1] << 8) | rxBuf[2];
-
-  for (uint8_t i = 0; i < num_channels_; ++i)
-  {
-    chOut[i] = unpack24(&rxBuf[STATUS_BYTES + BYTES_PER_CHANNEL * i]);
-  }
-
-  // Limpia posiciones sobrantes cuando el usuario reserva MAX_CHANNELS.
-  for (size_t i = num_channels_; i < capacity && i < MAX_CHANNELS; ++i)
-  {
-    chOut[i] = 0;
-  }
-
-  return statusHasSync(status24);
+  return ADS1299Core::decodeFrame(rxBuf, num_channels_, status24, chOut, capacity);
 }
 
 bool ADS1299Plus::readDataOnDemand(uint32_t &status24, int32_t *chOut, size_t capacity)
@@ -627,19 +614,7 @@ bool ADS1299Plus::readDataOnDemand(uint32_t &status24, int32_t *chOut, size_t ca
   }
   spi_->deselect();
 
-  status24 = ((uint32_t)rxBuf[0] << 16) | ((uint32_t)rxBuf[1] << 8) | rxBuf[2];
-
-  for (uint8_t i = 0; i < num_channels_; ++i)
-  {
-    chOut[i] = unpack24(&rxBuf[STATUS_BYTES + BYTES_PER_CHANNEL * i]);
-  }
-
-  for (size_t i = num_channels_; i < capacity && i < MAX_CHANNELS; ++i)
-  {
-    chOut[i] = 0;
-  }
-
-  return statusHasSync(status24);
+  return ADS1299Core::decodeFrame(rxBuf, num_channels_, status24, chOut, capacity);
 }
 
 bool ADS1299Plus::readDeviceID(uint8_t &id)

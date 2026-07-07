@@ -36,6 +36,7 @@ host tests passed
 - Device ID to channel count decoding.
 - 24-bit signed sample unpacking.
 - STATUS helper decoding.
+- Portable raw frame decoding through `ADS1299Core::decodeFrame()`.
 - HAL-backed startup sequence with fake SPI responses.
 - Register command sequencing.
 - RDATAC and RDATA frame decoding.

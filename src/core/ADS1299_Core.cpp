@@ -76,4 +76,34 @@ int32_t unpack24(const uint8_t bytes[3])
   return (int32_t)value;
 }
 
+bool decodeFrame(const uint8_t* frame,
+                 uint8_t channelCount,
+                 uint32_t& status,
+                 int32_t* channels,
+                 size_t capacity)
+{
+  if (frame == nullptr ||
+      channels == nullptr ||
+      channelCount < MIN_CHANNELS ||
+      channelCount > MAX_CHANNELS ||
+      capacity < channelCount) {
+    return false;
+  }
+
+  status =
+      ((uint32_t)frame[0] << 16) |
+      ((uint32_t)frame[1] << 8) |
+      frame[2];
+
+  for (uint8_t i = 0; i < channelCount; ++i) {
+    channels[i] = unpack24(&frame[STATUS_BYTES + BYTES_PER_CHANNEL * i]);
+  }
+
+  for (size_t i = channelCount; i < capacity && i < MAX_CHANNELS; ++i) {
+    channels[i] = 0;
+  }
+
+  return statusHasSync(status);
+}
+
 } // namespace ADS1299Core

@@ -382,3 +382,26 @@ The recommended next step is B7.1:
 
 - Host tests now exercise the new `ADS1299Core` helpers directly and confirm the `ADS1299Plus` compatibility wrappers.
 - The host test build command now links `src/core/ADS1299_Core.cpp`.
+
+## Phase B7.2 - Portable frame decode extraction
+
+**Status:** Complete (narrow acquisition helper extraction)
+
+### What was added
+
+- **`ADS1299Core::decodeFrame()`**: Decodes a raw ADS1299 frame buffer into STATUS and signed channel samples without Arduino or SPI dependencies.
+
+### What changed
+
+- `ADS1299Plus::readFrameRDATAC()` and `ADS1299Plus::readDataOnDemand()` still perform the same SPI reads, with the same CS/NOP byte flow, but delegate raw frame parsing to `ADS1299Core::decodeFrame()`.
+
+### Compatibility notes
+
+- SPI command execution is unchanged.
+- RDATAC/RDATA acquisition flow is unchanged.
+- Public `ADS1299Plus` API is unchanged.
+- Examples are unchanged.
+
+### Validation notes
+
+- Host tests now exercise `ADS1299Core::decodeFrame()` directly, including valid sync, invalid sync, sample sign extension, and capacity rejection.

@@ -7,6 +7,7 @@ They use minimal local stubs for `Arduino.h` and `SPI.h`, plus a `FakeHAL` that 
 ## What is covered
 
 - Portable `ADS1299Core` helpers
+- Portable raw frame decoding through `ADS1299Core::decodeFrame()`
 - `ADS1299Plus` compatibility wrappers for pure helpers
 - STATUS helpers and 24-bit sample unpacking
 - HAL-backed `ADS1299Plus::begin()`

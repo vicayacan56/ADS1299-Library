@@ -26,5 +26,10 @@ uint8_t statusLoffN(uint32_t status);
 uint8_t statusGPIO(uint32_t status);
 
 int32_t unpack24(const uint8_t bytes[3]);
+bool decodeFrame(const uint8_t* frame,
+                 uint8_t channelCount,
+                 uint32_t& status,
+                 int32_t* channels,
+                 size_t capacity);
 
 } // namespace ADS1299Core
