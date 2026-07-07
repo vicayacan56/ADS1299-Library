@@ -47,16 +47,7 @@ void ADS1299Plus::waitDecode_() const
 
 uint8_t ADS1299Plus::channelsFromDeviceID(uint8_t id)
 {
-  if (!ADS_ID_DEV_IS_1299(id))
-    return 0;
-
-  switch (id & ADS_ID_NU_CH_MASK)
-  {
-    case 0b00: return 4; // ADS1299-4
-    case 0b01: return 6; // ADS1299-6
-    case 0b10: return 8; // ADS1299
-    default:   return 0; // reservado / no soportado
-  }
+  return ADS1299Core::channelsFromDeviceID(id);
 }
 
 // ---- Control de pines auxiliares ----

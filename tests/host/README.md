@@ -6,9 +6,9 @@ They use minimal local stubs for `Arduino.h` and `SPI.h`, plus a `FakeHAL` that 
 
 ## What is covered
 
-- `ADS1299Plus::channelsFromDeviceID()`
-- `ADS1299Plus::unpack24()`
-- STATUS helpers
+- Portable `ADS1299Core` helpers
+- `ADS1299Plus` compatibility wrappers for pure helpers
+- STATUS helpers and 24-bit sample unpacking
 - HAL-backed `ADS1299Plus::begin()`
 - Register write command sequencing
 - RDATAC frame decode with known bytes
@@ -27,7 +27,7 @@ They use minimal local stubs for `Arduino.h` and `SPI.h`, plus a `FakeHAL` that 
 From the repository root, with `g++` in `PATH`:
 
 ```powershell
-g++ -std=c++11 -I tests/host/arduino_stubs -I src -I src/hal tests/host/test_ads1299_host.cpp src/ADS1299Plus.cpp src/ADS1299_SafeSPI.cpp -o tests/host/test_ads1299_host.exe
+g++ -std=c++11 -I tests/host/arduino_stubs -I src -I src/hal tests/host/test_ads1299_host.cpp src/core/ADS1299_Core.cpp src/ADS1299Plus.cpp src/ADS1299_SafeSPI.cpp -o tests/host/test_ads1299_host.exe
 .\tests\host\test_ads1299_host.exe
 ```
 

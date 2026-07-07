@@ -21,7 +21,7 @@ They use local stubs for `Arduino.h` and `SPI.h`, plus a `FakeHAL`, so they can 
 From the repository root:
 
 ```powershell
-g++ -std=c++11 -I tests/host/arduino_stubs -I src -I src/hal tests/host/test_ads1299_host.cpp src/ADS1299Plus.cpp src/ADS1299_SafeSPI.cpp -o tests/host/test_ads1299_host.exe
+g++ -std=c++11 -I tests/host/arduino_stubs -I src -I src/hal tests/host/test_ads1299_host.cpp src/core/ADS1299_Core.cpp src/ADS1299Plus.cpp src/ADS1299_SafeSPI.cpp -o tests/host/test_ads1299_host.exe
 .\tests\host\test_ads1299_host.exe
 ```
 

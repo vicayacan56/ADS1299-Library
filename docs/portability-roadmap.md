@@ -354,3 +354,31 @@ The recommended next step is B7.1:
 2. **No examples are changed**.
 3. **No test behavior is changed**.
 4. **This phase exists to prevent B7 from becoming a broad refactor**.
+
+## Phase B7.1 - Pure helper core extraction
+
+**Status:** Complete (narrow core extraction)
+
+### What was added
+
+- **`src/core/ADS1299_Core.h`** and **`src/core/ADS1299_Core.cpp`**: Portable helper layer with no Arduino dependencies.
+
+### What moved behind the core boundary
+
+- Device ID to channel count decoding.
+- Frame byte count calculation.
+- Register range validation.
+- Channel mask clipping.
+- STATUS decoding helpers.
+- 24-bit signed sample unpacking.
+
+### Compatibility notes
+
+- `ADS1299Plus` keeps the same public constants and helper names.
+- Existing sketches can continue calling `ADS1299Plus::channelsFromDeviceID()`, `ADS1299Plus::unpack24()`, and STATUS helpers.
+- SPI command execution, register access, RDATAC acquisition, examples, and validated register defaults are unchanged.
+
+### Validation notes
+
+- Host tests now exercise the new `ADS1299Core` helpers directly and confirm the `ADS1299Plus` compatibility wrappers.
+- The host test build command now links `src/core/ADS1299_Core.cpp`.

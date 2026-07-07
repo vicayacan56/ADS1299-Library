@@ -6,6 +6,7 @@
 
 #include "ADS1299Plus.h"
 #include "ADS1299_Registers.h"
+#include "core/ADS1299_Core.h"
 
 SPIClass SPI;
 
@@ -174,6 +175,16 @@ static void queueFrame(FakeHAL& hal, uint8_t channels)
 
 static void testPureHelpers()
 {
+    EXPECT_EQ(ADS1299Plus::MIN_CHANNELS, ADS1299Core::MIN_CHANNELS);
+    EXPECT_EQ(ADS1299Plus::MAX_CHANNELS, ADS1299Core::MAX_CHANNELS);
+    EXPECT_EQ(ADS1299Plus::BYTES_PER_FRAME_MAX, ADS1299Core::BYTES_PER_FRAME_MAX);
+
+    EXPECT_EQ(4, ADS1299Core::channelsFromDeviceID(0x1C));
+    EXPECT_EQ(6, ADS1299Core::channelsFromDeviceID(0x1D));
+    EXPECT_EQ(8, ADS1299Core::channelsFromDeviceID(0x1E));
+    EXPECT_EQ(0, ADS1299Core::channelsFromDeviceID(0x00));
+    EXPECT_EQ(0, ADS1299Core::channelsFromDeviceID(0x1F));
+
     EXPECT_EQ(4, ADS1299Plus::channelsFromDeviceID(0x1C));
     EXPECT_EQ(6, ADS1299Plus::channelsFromDeviceID(0x1D));
     EXPECT_EQ(8, ADS1299Plus::channelsFromDeviceID(0x1E));
@@ -188,13 +199,32 @@ static void testPureHelpers()
     EXPECT_EQ(-1, ADS1299Plus::unpack24(minusOne));
     EXPECT_EQ(-8388608, ADS1299Plus::unpack24(minNegative));
     EXPECT_EQ(8388607, ADS1299Plus::unpack24(maxPositive));
+    EXPECT_EQ(8388607, ADS1299Core::unpack24(maxPositive));
 
     const uint32_t status = 0xC1234F;
+    EXPECT_TRUE(ADS1299Core::statusHasSync(status));
+    EXPECT_EQ(0x12, ADS1299Core::statusLoffP(status));
+    EXPECT_EQ(0x34, ADS1299Core::statusLoffN(status));
+    EXPECT_EQ(0x0F, ADS1299Core::statusGPIO(status));
+    EXPECT_TRUE(!ADS1299Core::statusHasSync(0xA00000));
+
     EXPECT_TRUE(ADS1299Plus::statusHasSync(status));
     EXPECT_EQ(0x12, ADS1299Plus::statusLoffP(status));
     EXPECT_EQ(0x34, ADS1299Plus::statusLoffN(status));
     EXPECT_EQ(0x0F, ADS1299Plus::statusGPIO(status));
     EXPECT_TRUE(!ADS1299Plus::statusHasSync(0xA00000));
+
+    EXPECT_EQ(15, ADS1299Core::bytesPerFrame(4));
+    EXPECT_EQ(21, ADS1299Core::bytesPerFrame(6));
+    EXPECT_EQ(27, ADS1299Core::bytesPerFrame(8));
+    EXPECT_TRUE(ADS1299Core::validRegisterRange(ADS_REG_ID, 1));
+    EXPECT_TRUE(ADS1299Core::validRegisterRange(ADS_REG_ID, ADS_REG_CONFIG4 + 1));
+    EXPECT_TRUE(!ADS1299Core::validRegisterRange(ADS_REG_CONFIG4, 2));
+    EXPECT_TRUE(!ADS1299Core::validRegisterRange(ADS_REG_ID, 0));
+    EXPECT_EQ(0x0F, ADS1299Core::clipChannelMask(0xFF, 4));
+    EXPECT_EQ(0x3F, ADS1299Core::clipChannelMask(0xFF, 6));
+    EXPECT_EQ(0xFF, ADS1299Core::clipChannelMask(0xFF, 8));
+    EXPECT_EQ(0xFF, ADS1299Core::clipChannelMask(0xFF, 99));
 }
 
 static void testHalBeginAndRegisterWrite()

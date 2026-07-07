@@ -25,21 +25,22 @@
 #include <Arduino.h>
 #include "ADS1299_Registers.h"
 #include "ADS1299_SafeSPI.h"
+#include "core/ADS1299_Core.h"
 
 class ADS1299Plus {
 public:
   // ----- Constantes del dispositivo -----
-  static constexpr uint8_t MIN_CHANNELS = 4;
-  static constexpr uint8_t MAX_CHANNELS = 8;
+  static constexpr uint8_t MIN_CHANNELS = ADS1299Core::MIN_CHANNELS;
+  static constexpr uint8_t MAX_CHANNELS = ADS1299Core::MAX_CHANNELS;
 
   // Alias de capacidad máxima. Se mantiene el nombre NUM_CHANNELS para que los
   // sketches que reservan arrays con ADS1299Plus::NUM_CHANNELS sean seguros en
   // ADS1299-4/6/8. Para conocer canales reales, usar channelCount().
   static constexpr uint8_t NUM_CHANNELS = MAX_CHANNELS;
 
-  static constexpr uint16_t STATUS_BYTES = 3;
-  static constexpr uint16_t BYTES_PER_CHANNEL = 3;
-  static constexpr uint16_t BYTES_PER_FRAME_MAX = STATUS_BYTES + BYTES_PER_CHANNEL * MAX_CHANNELS;
+  static constexpr uint16_t STATUS_BYTES = ADS1299Core::STATUS_BYTES;
+  static constexpr uint16_t BYTES_PER_CHANNEL = ADS1299Core::BYTES_PER_CHANNEL;
+  static constexpr uint16_t BYTES_PER_FRAME_MAX = ADS1299Core::BYTES_PER_FRAME_MAX;
 
   // Valor reservado para indicar que un pin opcional no está conectado al MCU.
   // Uso típico: PWDN cableado directamente a VDD.
@@ -102,7 +103,7 @@ public:
 
   // ----- Información de dispositivo detectado -----
   uint8_t channelCount() const { return num_channels_; }
-  uint16_t bytesPerFrame() const { return STATUS_BYTES + BYTES_PER_CHANNEL * num_channels_; }
+  uint16_t bytesPerFrame() const { return ADS1299Core::bytesPerFrame(num_channels_); }
   static uint8_t channelsFromDeviceID(uint8_t id);
 
   // ----- Comandos SPI (9.5.3.x) -----
@@ -181,17 +182,15 @@ public:
 
   // Decodificadores de STATUS (9.4.4.2).
   static inline bool statusHasSync(uint32_t s) {
-    return (s & ADS_STATUS_SYNC_MASK) == ADS_STATUS_SYNC_VAL;
+    return ADS1299Core::statusHasSync(s);
   }
-  static inline uint8_t statusLoffP(uint32_t s) { return ADS_STATUS_LOFFP(s); }
-  static inline uint8_t statusLoffN(uint32_t s) { return ADS_STATUS_LOFFN(s); }
-  static inline uint8_t statusGPIO (uint32_t s) { return ADS_STATUS_GPIO4_1(s); }
+  static inline uint8_t statusLoffP(uint32_t s) { return ADS1299Core::statusLoffP(s); }
+  static inline uint8_t statusLoffN(uint32_t s) { return ADS1299Core::statusLoffN(s); }
+  static inline uint8_t statusGPIO (uint32_t s) { return ADS1299Core::statusGPIO(s); }
 
   // Convierte 3 bytes MSB-first en entero con signo (24 bits -> 32 bits).
   static inline int32_t unpack24(const uint8_t b[3]) {
-    uint32_t u = ((uint32_t)b[0] << 16) | ((uint32_t)b[1] << 8) | b[2];
-    if (u & 0x00800000UL) u |= 0xFF000000UL;
-    return (int32_t)u;
+    return ADS1299Core::unpack24(b);
   }
 
   bool readDeviceID(uint8_t& id);
@@ -214,9 +213,9 @@ private:
 
   bool validCh_(uint8_t ch) const { return ch >= 1 && ch <= num_channels_; }
   static inline uint8_t chRegAddr_(uint8_t ch) { return ADS_REG_CH1SET + (ch - 1); }
-  uint8_t clipMask_(uint8_t mask) const { return ADS_ClipMaskToChannels(mask, num_channels_); }
+  uint8_t clipMask_(uint8_t mask) const { return ADS1299Core::clipChannelMask(mask, num_channels_); }
   static inline bool validRegRange_(uint8_t startAddr, size_t n) {
-    return n > 0 && startAddr <= ADS_REG_CONFIG4 && (size_t)startAddr + n - 1 <= ADS_REG_CONFIG4;
+    return ADS1299Core::validRegisterRange(startAddr, n);
   }
 
 private:
