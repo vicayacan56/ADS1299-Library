@@ -561,3 +561,27 @@ Rules:
 - Do not change `ADS1299_SafeSPI`.
 - Do not route production behavior through the new object until command/register protocol tests exist.
 - Preserve host tests and Arduino example compile CI.
+
+## Phase B8.1 - Unintegrated protocol object skeleton
+
+**Status:** Complete (skeleton and tests only)
+
+### What was added
+
+- **`src/core/ADS1299_Protocol.h`** and **`src/core/ADS1299_Protocol.cpp`**: Internal portable protocol object skeleton.
+- **`tests/host/test_ads1299_protocol.cpp`**: Host test that constructs the protocol object against a local HAL fake.
+
+### What changed
+
+- GitHub Actions now builds and runs the protocol skeleton test between the standalone core test and the full host-side ADS1299Plus test.
+
+### Compatibility notes
+
+- `ADS1299Plus` is not integrated with `ADS1299_Protocol` yet.
+- `ADS1299_SafeSPI` is unchanged.
+- Public API and examples are unchanged.
+- No command, register, or acquisition behavior is routed through the new object yet.
+
+### Validation notes
+
+- The protocol skeleton test proves the new object can compile and be constructed without Arduino/SPI stubs.

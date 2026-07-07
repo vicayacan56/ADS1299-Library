@@ -24,6 +24,9 @@ From the repository root:
 g++ -std=c++11 -I src tests/host/test_ads1299_core.cpp src/core/ADS1299_Core.cpp -o tests/host/test_ads1299_core.exe
 .\tests\host\test_ads1299_core.exe
 
+g++ -std=c++11 -I src -I src/hal tests/host/test_ads1299_protocol.cpp src/core/ADS1299_Protocol.cpp -o tests/host/test_ads1299_protocol.exe
+.\tests\host\test_ads1299_protocol.exe
+
 g++ -std=c++11 -I tests/host/arduino_stubs -I src -I src/hal tests/host/test_ads1299_host.cpp src/core/ADS1299_Core.cpp src/ADS1299Plus.cpp src/ADS1299_SafeSPI.cpp -o tests/host/test_ads1299_host.exe
 .\tests\host\test_ads1299_host.exe
 ```
@@ -32,6 +35,7 @@ Expected output:
 
 ```text
 core tests passed
+protocol tests passed
 host tests passed
 ```
 
@@ -42,6 +46,7 @@ host tests passed
 - STATUS helper decoding.
 - Portable raw frame decoding through `ADS1299Core::decodeFrame()`.
 - Standalone portable core compilation without Arduino/SPI stubs.
+- Unintegrated protocol object compilation with a local HAL fake.
 - HAL-backed startup sequence with fake SPI responses.
 - Register command sequencing.
 - RDATAC and RDATA frame decoding.

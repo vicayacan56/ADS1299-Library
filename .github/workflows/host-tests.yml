@@ -29,6 +29,18 @@ jobs:
       - name: Run standalone core tests
         run: ./tests/host/test_ads1299_core
 
+      - name: Build protocol object tests
+        run: >
+          g++ -std=c++11
+          -I src
+          -I src/hal
+          tests/host/test_ads1299_protocol.cpp
+          src/core/ADS1299_Protocol.cpp
+          -o tests/host/test_ads1299_protocol
+
+      - name: Run protocol object tests
+        run: ./tests/host/test_ads1299_protocol
+
       - name: Build host-side tests
         run: >
           g++ -std=c++11
