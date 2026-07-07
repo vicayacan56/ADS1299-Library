@@ -10,27 +10,27 @@
 
 #include <stdint.h>
 
-enum class ADS1299_SpiBitOrder {
-    MsbFirst,
-    LsbFirst
+enum class ADS1299_SpiBitOrder : uint8_t {
+    MSB_FIRST = 0,
+    LSB_FIRST = 1
 };
 
-enum class ADS1299_SpiMode {
-    Mode0,
-    Mode1,
-    Mode2,
-    Mode3
+enum class ADS1299_SpiMode : uint8_t {
+    MODE0 = 0,
+    MODE1 = 1,
+    MODE2 = 2,
+    MODE3 = 3
 };
 
-enum class ADS1299_GpioLevel {
-    Low,
-    High
+enum class ADS1299_GpioLevel : uint8_t {
+    LOW = 0,
+    HIGH = 1
 };
 
 struct ADS1299_SpiConfig {
-    uint32_t clockHz;
-    ADS1299_SpiBitOrder bitOrder;
-    ADS1299_SpiMode mode;
+    uint32_t clockHz = 2048000;
+    ADS1299_SpiBitOrder bitOrder = ADS1299_SpiBitOrder::MSB_FIRST;
+    ADS1299_SpiMode mode = ADS1299_SpiMode::MODE1;
 };
 
 #endif // ADS1299_HAL_TYPES_H

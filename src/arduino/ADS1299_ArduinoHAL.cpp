@@ -16,9 +16,9 @@
 static decltype(MSBFIRST) toArduinoBitOrder(ADS1299_SpiBitOrder bitOrder)
 {
     switch (bitOrder) {
-    case ADS1299_SpiBitOrder::LsbFirst:
+    case ADS1299_SpiBitOrder::LSB_FIRST:
         return LSBFIRST;
-    case ADS1299_SpiBitOrder::MsbFirst:
+    case ADS1299_SpiBitOrder::MSB_FIRST:
     default:
         return MSBFIRST;
     }
@@ -27,13 +27,13 @@ static decltype(MSBFIRST) toArduinoBitOrder(ADS1299_SpiBitOrder bitOrder)
 static decltype(SPI_MODE0) toArduinoSpiMode(ADS1299_SpiMode mode)
 {
     switch (mode) {
-    case ADS1299_SpiMode::Mode1:
+    case ADS1299_SpiMode::MODE1:
         return SPI_MODE1;
-    case ADS1299_SpiMode::Mode2:
+    case ADS1299_SpiMode::MODE2:
         return SPI_MODE2;
-    case ADS1299_SpiMode::Mode3:
+    case ADS1299_SpiMode::MODE3:
         return SPI_MODE3;
-    case ADS1299_SpiMode::Mode0:
+    case ADS1299_SpiMode::MODE0:
     default:
         return SPI_MODE0;
     }

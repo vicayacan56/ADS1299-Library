@@ -131,7 +131,7 @@ No API changes. ADS1299Plus and examples remain fully compatible.
 ### What was added
 
 - **`src/hal/ADS1299_HAL_Types.h`**: Platform-neutral SPI and GPIO types.
-- **`ADS1299_SpiConfig`**: Neutral SPI transaction configuration containing clock frequency, bit order, and SPI mode.
+- **`ADS1299_SpiConfig`**: Neutral SPI transaction configuration containing clock frequency, bit order, and SPI mode, with ADS1299-oriented defaults (`2048000`, `MSB_FIRST`, `MODE1`).
 - **`beginTransaction(const ADS1299_SpiConfig&)` / `endTransaction()`**: New HAL methods for explicit SPI transaction boundaries.
 - **Arduino backend transaction support**: `ADS1299_ArduinoHAL` now translates neutral SPI configuration to `SPISettings` and calls `SPI.beginTransaction()` / `SPI.endTransaction()`.
 
