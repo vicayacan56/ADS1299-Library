@@ -112,3 +112,14 @@ The `ADS1299_HAL` abstract class defines:
 - No mass refactoring of existing code.
 - The HAL is ready for future use, but integration will be done carefully in later phases.
 - Existing projects will continue to compile and function normally.
+
+### Phase B1.1 - Refinements
+
+Minor corrections and enhancements to the HAL skeleton:
+
+- **Include path correction**: Changed `#include "ADS1299_HAL.h"` to `#include "../hal/ADS1299_HAL.h"` for proper relative path handling.
+- **Optional PWDN support**: Added `PIN_UNUSED` constant to allow boards that don't have a PWDN pin. Constructor can now receive `PIN_UNUSED` for `pwdnPin` parameter; PWDN operations are skipped if the pin is not assigned.
+- **RESET and DRDY alignment**: Corrected RESET to start HIGH (inactive, since RESET is active-low); changed DRDY to use `INPUT_PULLUP` for consistency with existing Arduino-compatible driver.
+- **Modern C++ conventions**: Switched from `virtual` to `override` keyword in derived class methods for better compile-time safety.
+
+No API changes. ADS1299Plus and examples remain fully compatible.

@@ -13,7 +13,7 @@
 #ifndef ADS1299_ARDUINO_HAL_H
 #define ADS1299_ARDUINO_HAL_H
 
-#include "ADS1299_HAL.h"
+#include "../hal/ADS1299_HAL.h"
 #include <stdint.h>
 
 /**
@@ -32,6 +32,11 @@
  */
 class ADS1299_ArduinoHAL : public ADS1299_HAL {
 public:
+    /**
+     * Marker for unused pins (when PWDN is not available on the board).
+     */
+    static constexpr uint8_t PIN_UNUSED = 0xFF;
+
     /**
      * Constructor.
      *
@@ -58,23 +63,23 @@ public:
      * Initialize the HAL layer.
      * Sets up SPI and GPIO pins for Arduino platform.
      */
-    virtual void begin();
+    void begin() override;
 
     /**
      * Deinitialize the HAL layer.
      * Currently a no-op for Arduino, but reserved for future use.
      */
-    virtual void end();
+    void end() override;
 
     /**
      * Assert chip select (pull CS LOW).
      */
-    virtual void csLow();
+    void csLow() override;
 
     /**
      * Deassert chip select (pull CS HIGH).
      */
-    virtual void csHigh();
+    void csHigh() override;
 
     /**
      * SPI transfer using Arduino SPI library.
@@ -82,49 +87,50 @@ public:
      * @param data byte to send
      * @return byte received from ADS1299
      */
-    virtual uint8_t spiTransfer(uint8_t data);
+    uint8_t spiTransfer(uint8_t data) override;
 
     /**
      * Delay in microseconds using Arduino delayMicroseconds().
      *
      * @param us microseconds to delay
      */
-    virtual void delayMicroseconds(uint32_t us);
+    void delayMicroseconds(uint32_t us) override;
 
     /**
      * Delay in milliseconds using Arduino delay().
      *
      * @param ms milliseconds to delay
      */
-    virtual void delayMilliseconds(uint32_t ms);
+    void delayMilliseconds(uint32_t ms) override;
 
     /**
      * Control the START pin.
      *
      * @param high true = HIGH, false = LOW
      */
-    virtual void setStart(bool high);
+    void setStart(bool high) override;
 
     /**
      * Control the RESET pin.
      *
      * @param high true = HIGH, false = LOW
      */
-    virtual void setReset(bool high);
+    void setReset(bool high) override;
 
     /**
      * Control the PWDN (power down) pin.
+     * Does nothing if PIN_UNUSED was specified in constructor.
      *
      * @param high true = HIGH (normal operation), false = LOW (power down)
      */
-    virtual void setPwdn(bool high);
+    void setPwdn(bool high) override;
 
     /**
      * Read the DRDY (data ready) pin.
      *
      * @return true if DRDY is HIGH, false if DRDY is LOW
      */
-    virtual bool readDrdy();
+    bool readDrdy() override;
 
 private:
     uint8_t m_csPin;

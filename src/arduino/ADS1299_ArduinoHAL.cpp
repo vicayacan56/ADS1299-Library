@@ -51,10 +51,14 @@ void ADS1299_ArduinoHAL::begin()
     pinMode(m_csPin, OUTPUT);
     pinMode(m_startPin, OUTPUT);
     pinMode(m_resetPin, OUTPUT);
-    pinMode(m_pwdnPin, OUTPUT);
     
-    // Configure DRDY pin as input
-    pinMode(m_drdyPin, INPUT);
+    // Configure PWDN pin only if it's assigned (not PIN_UNUSED)
+    if (m_pwdnPin != PIN_UNUSED) {
+        pinMode(m_pwdnPin, OUTPUT);
+    }
+    
+    // Configure DRDY pin as input with pull-up
+    pinMode(m_drdyPin, INPUT_PULLUP);
     
     // Start with CS HIGH (inactive)
     csHigh();
@@ -62,11 +66,13 @@ void ADS1299_ArduinoHAL::begin()
     // Start with START LOW (no conversion)
     setStart(false);
     
-    // Start with RESET LOW (not resetting)
-    setReset(false);
+    // Start with RESET HIGH (inactive; RESET is active-low)
+    setReset(true);
     
-    // Start with PWDN HIGH (normal operation)
-    setPwdn(true);
+    // Start with PWDN HIGH (normal operation) if the pin is assigned
+    if (m_pwdnPin != PIN_UNUSED) {
+        setPwdn(true);
+    }
 }
 
 /**
@@ -136,9 +142,13 @@ void ADS1299_ArduinoHAL::setReset(bool high)
 
 /**
  * Control PWDN pin
+ * Does nothing if PIN_UNUSED was specified in constructor.
  */
 void ADS1299_ArduinoHAL::setPwdn(bool high)
 {
+    if (m_pwdnPin == PIN_UNUSED) {
+        return;
+    }
     digitalWrite(m_pwdnPin, high ? HIGH : LOW);
 }
 
