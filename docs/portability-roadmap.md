@@ -43,41 +43,6 @@ src/
     ADS1299Plus.h
 
 
-Core
-
-The core should contain only ADS1299 logic:
-
-SPI command sequences.
-Register read and write logic.
-Frame decoding.
-Channel count detection.
-Configuration helpers.
-
-The core should not include Arduino.h or SPI.h.
-
-HAL
-
-The HAL should define the operations needed by the core:
-
-SPI transfer.
-CS control.
-START control.
-RESET control.
-DRDY read.
-Microsecond delay.
-Millisecond delay.
-Arduino backend
-
-The Arduino backend will implement the HAL using:
-
-Arduino GPIO.
-Arduino SPI.
-Arduino delay functions.
-Possible future backends
-STM32 HAL.
-ESP-IDF.
-Zephyr.
-Bare-metal C++.
 
 
 
@@ -86,3 +51,5 @@ Bare-metal C++.
 
 
 
+
+    
