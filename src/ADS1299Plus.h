@@ -24,8 +24,7 @@
 #pragma once
 #include <Arduino.h>
 #include "ADS1299_Registers.h"
-
-class ADS1299_SafeSPI;
+#include "ADS1299_SafeSPI.h"
 
 class ADS1299Plus {
 public:
@@ -92,6 +91,9 @@ public:
 public:
   // ----- Construcción -----
   ADS1299Plus(ADS1299_SafeSPI& spi, const Pins& pins);
+  ADS1299Plus(ADS1299_HAL& hal,
+              const Pins& pins,
+              uint32_t spiHz = ADS1299_SafeSPI::DEFAULT_SPI_HZ);
 
   // ----- Ciclo de vida -----
   bool begin();
@@ -206,6 +208,9 @@ private:
   bool readOne_ (uint8_t addr, uint8_t& val);
   bool writeBurst_(uint8_t startAddr, const uint8_t* data, size_t n);
   bool readBurst_ (uint8_t startAddr,       uint8_t* data, size_t n);
+  void waitUs_(uint32_t us) const;
+  void waitMs_(uint32_t ms) const;
+  void waitDecode_() const;
 
   bool validCh_(uint8_t ch) const { return ch >= 1 && ch <= num_channels_; }
   static inline uint8_t chRegAddr_(uint8_t ch) { return ADS_REG_CH1SET + (ch - 1); }
@@ -215,8 +220,11 @@ private:
   }
 
 private:
-  ADS1299_SafeSPI& spi_;
+  ADS1299_SafeSPI ownedSpi_;
+  ADS1299_SafeSPI* spi_;
+  ADS1299_HAL* hal_;
   Pins pins_;
+  bool useHal_ = false;
   bool rdatacActive_ = false;
   uint8_t num_channels_ = MAX_CHANNELS; // se actualiza en begin() leyendo ID.
 };

@@ -158,3 +158,21 @@ No API changes. ADS1299Plus and examples remain fully compatible.
 2. **The HAL path is opt-in** through the new SafeSPI constructor.
 3. **Validated SPI behavior is preserved**: MSB-first, MODE1, and the caller-provided SPI clock remain the transport settings.
 4. **Examples remain unchanged** and continue to exercise the Arduino path.
+
+## Phase B2.3 - ADS1299Plus optional HAL constructor
+
+**Status:** In progress (additive driver path)
+
+### What was added
+
+- **`ADS1299Plus(ADS1299_HAL& hal, const Pins& pins, uint32_t spiHz)`**: Optional constructor for HAL-backed use.
+- **Internal HAL-backed SafeSPI transport**: The HAL constructor creates an internal `ADS1299_SafeSPI` transport using the B2.2 HAL path.
+- **Dual-path GPIO and timing helpers**: START, RESET, PWDN, DRDY, microsecond delays, millisecond delays, and decode delays now dispatch to Arduino APIs or HAL APIs depending on the constructor used.
+- **Preserved Arduino path**: Existing code that constructs `ADS1299Plus(ADS1299_SafeSPI&, Pins)` continues to use the same public API and examples.
+
+### Important notes for Phase B2.3
+
+1. **Frame acquisition logic remains unchanged**. `readFrameRDATAC()`, `readDataOnDemand()`, `unpack24()`, frame sizing, and STATUS decoding are preserved.
+2. **Register defaults remain unchanged**. B2.3 does not modify validated register values or configuration helpers.
+3. **HAL usage is opt-in** through the new constructor. Existing examples remain unchanged and continue to exercise the Arduino/SafeSPI path.
+4. **The Arduino-compatible API remains backward compatible**.

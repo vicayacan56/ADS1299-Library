@@ -7,10 +7,43 @@
 // Utilidades internas de tiempo.
 static inline void ads_wait_us(uint32_t us) { delayMicroseconds(us); }
 static inline void ads_wait_ms(uint32_t ms) { delay(ms); }
-static inline void ads_wait_decode() { delayMicroseconds(3); }
 
 ADS1299Plus::ADS1299Plus(ADS1299_SafeSPI &spi, const Pins &pins)
-    : spi_(spi), pins_(pins) {}
+    : ownedSpi_(pins.cs),
+      spi_(&spi),
+      hal_(nullptr),
+      pins_(pins),
+      useHal_(false) {}
+
+ADS1299Plus::ADS1299Plus(ADS1299_HAL &hal, const Pins &pins, uint32_t spiHz)
+    : ownedSpi_(hal, spiHz),
+      spi_(&ownedSpi_),
+      hal_(&hal),
+      pins_(pins),
+      useHal_(true) {}
+
+void ADS1299Plus::waitUs_(uint32_t us) const
+{
+  if (useHal_) {
+    hal_->delayMicroseconds(us);
+  } else {
+    ads_wait_us(us);
+  }
+}
+
+void ADS1299Plus::waitMs_(uint32_t ms) const
+{
+  if (useHal_) {
+    hal_->delayMilliseconds(ms);
+  } else {
+    ads_wait_ms(ms);
+  }
+}
+
+void ADS1299Plus::waitDecode_() const
+{
+  waitUs_(3);
+}
 
 uint8_t ADS1299Plus::channelsFromDeviceID(uint8_t id)
 {
@@ -27,19 +60,45 @@ uint8_t ADS1299Plus::channelsFromDeviceID(uint8_t id)
 }
 
 // ---- Control de pines auxiliares ----
-void ADS1299Plus::pinStartHigh() { digitalWrite(pins_.start, HIGH); }
-void ADS1299Plus::pinStartLow() { digitalWrite(pins_.start, LOW); }
+void ADS1299Plus::pinStartHigh()
+{
+  if (useHal_) {
+    hal_->setStart(true);
+  } else {
+    digitalWrite(pins_.start, HIGH);
+  }
+}
+
+void ADS1299Plus::pinStartLow()
+{
+  if (useHal_) {
+    hal_->setStart(false);
+  } else {
+    digitalWrite(pins_.start, LOW);
+  }
+}
 
 void ADS1299Plus::pinResetPulse()
 {
-  digitalWrite(pins_.reset, LOW);
-  ads_wait_us(10);
-  digitalWrite(pins_.reset, HIGH);
-  ads_wait_us(20);
+  if (useHal_) {
+    hal_->setReset(false);
+    waitUs_(10);
+    hal_->setReset(true);
+  } else {
+    digitalWrite(pins_.reset, LOW);
+    waitUs_(10);
+    digitalWrite(pins_.reset, HIGH);
+  }
+  waitUs_(20);
 }
 
 void ADS1299Plus::pinPowerDown(bool activeLow)
 {
+  if (useHal_) {
+    hal_->setPwdn(!activeLow);
+    return;
+  }
+
   if (pins_.pwdn == ADS_PIN_UNUSED)
     return;
   digitalWrite(pins_.pwdn, activeLow ? LOW : HIGH);
@@ -47,37 +106,48 @@ void ADS1299Plus::pinPowerDown(bool activeLow)
 
 bool ADS1299Plus::dataReady() const
 {
+  if (useHal_) {
+    return !hal_->readDrdy();
+  }
+
   return digitalRead(pins_.drdy) == LOW;
 }
 
 // ---- Secuencia de arranque (11.1) ----
 bool ADS1299Plus::begin()
 {
-  // 1) Configurar pines.
-  pinMode(pins_.cs, OUTPUT);
-  digitalWrite(pins_.cs, HIGH);
-  // SCLK/MOSI/MISO belong to the selected Arduino SPI peripheral and are
-  // configured by SPI.begin() in ADS1299_SafeSPI. They are kept in Pins as
-  // documentation of the wiring, but the driver does not force pinMode() on
-  // them to remain portable across Arduino-compatible cores.
-  pinMode(pins_.drdy, INPUT_PULLUP);
-  pinMode(pins_.start, OUTPUT);
-  digitalWrite(pins_.start, LOW);
-  pinMode(pins_.reset, OUTPUT);
-  digitalWrite(pins_.reset, HIGH);
+  if (useHal_) {
+    // The HAL-backed SafeSPI path initializes GPIO, SPI, CS idle state,
+    // START/RESET/PWDN defaults, and SPI transaction settings.
+    spi_->begin();
+    waitMs_(5);
+  } else {
+    // 1) Configurar pines.
+    pinMode(pins_.cs, OUTPUT);
+    digitalWrite(pins_.cs, HIGH);
+    // SCLK/MOSI/MISO belong to the selected Arduino SPI peripheral and are
+    // configured by SPI.begin() in ADS1299_SafeSPI. They are kept in Pins as
+    // documentation of the wiring, but the driver does not force pinMode() on
+    // them to remain portable across Arduino-compatible cores.
+    pinMode(pins_.drdy, INPUT_PULLUP);
+    pinMode(pins_.start, OUTPUT);
+    digitalWrite(pins_.start, LOW);
+    pinMode(pins_.reset, OUTPUT);
+    digitalWrite(pins_.reset, HIGH);
 
-  // PWDN es activo en bajo. En muchos diseños se conecta directamente a VDD;
-  // en ese caso no debe configurarse como GPIO y se indica con ADS_PIN_UNUSED.
-  if (pins_.pwdn != ADS_PIN_UNUSED) {
-    pinMode(pins_.pwdn, OUTPUT);
-    digitalWrite(pins_.pwdn, HIGH);
+    // PWDN es activo en bajo. En muchos diseños se conecta directamente a VDD;
+    // en ese caso no debe configurarse como GPIO y se indica con ADS_PIN_UNUSED.
+    if (pins_.pwdn != ADS_PIN_UNUSED) {
+      pinMode(pins_.pwdn, OUTPUT);
+      digitalWrite(pins_.pwdn, HIGH);
+    }
+
+    // 2) Esperar a que fuentes y líneas digitales se estabilicen.
+    waitMs_(5);
+
+    // 3) Inicializar SPI seguro. ADS1299_SafeSPI::begin() es idempotente.
+    spi_->begin();
   }
-
-  // 2) Esperar a que fuentes y líneas digitales se estabilicen.
-  ads_wait_ms(5);
-
-  // 3) Inicializar SPI seguro. ADS1299_SafeSPI::begin() es idempotente.
-  spi_.begin();
 
   // 4) Reset digital.
   cmdReset();
@@ -152,74 +222,74 @@ void ADS1299Plus::end()
 {
   cmdStop();
   cmdSDATAC();
-  spi_.end();
+  spi_->end();
 }
 
 // ---- Comandos SPI ----
 void ADS1299Plus::cmdWakeup()
 {
-  spi_.select();
-  spi_.xfer(ADS_CMD_WAKEUP);
-  spi_.deselect();
-  ads_wait_decode();
+  spi_->select();
+  spi_->xfer(ADS_CMD_WAKEUP);
+  spi_->deselect();
+  waitDecode_();
 }
 
 void ADS1299Plus::cmdStandby()
 {
-  spi_.select();
-  spi_.xfer(ADS_CMD_STANDBY);
-  spi_.deselect();
-  ads_wait_decode();
+  spi_->select();
+  spi_->xfer(ADS_CMD_STANDBY);
+  spi_->deselect();
+  waitDecode_();
 }
 
 void ADS1299Plus::cmdReset()
 {
-  spi_.select();
-  spi_.xfer(ADS_CMD_RESET);
-  spi_.deselect();
+  spi_->select();
+  spi_->xfer(ADS_CMD_RESET);
+  spi_->deselect();
   rdatacActive_ = false; // El estado real se normaliza con cmdSDATAC() tras reset.
-  ads_wait_us(20);
+  waitUs_(20);
 }
 
 void ADS1299Plus::cmdStart()
 {
-  spi_.select();
-  spi_.xfer(ADS_CMD_START);
-  spi_.deselect();
-  ads_wait_decode();
+  spi_->select();
+  spi_->xfer(ADS_CMD_START);
+  spi_->deselect();
+  waitDecode_();
 }
 
 void ADS1299Plus::cmdStop()
 {
-  spi_.select();
-  spi_.xfer(ADS_CMD_STOP);
-  spi_.deselect();
-  ads_wait_decode();
+  spi_->select();
+  spi_->xfer(ADS_CMD_STOP);
+  spi_->deselect();
+  waitDecode_();
 }
 
 void ADS1299Plus::cmdRDATAC()
 {
-  spi_.select();
-  spi_.xfer(ADS_CMD_RDATAC);
-  spi_.deselect();
+  spi_->select();
+  spi_->xfer(ADS_CMD_RDATAC);
+  spi_->deselect();
   rdatacActive_ = true;
-  ads_wait_decode();
+  waitDecode_();
 }
 
 void ADS1299Plus::cmdSDATAC()
 {
-  spi_.select();
-  spi_.xfer(ADS_CMD_SDATAC);
-  spi_.deselect();
+  spi_->select();
+  spi_->xfer(ADS_CMD_SDATAC);
+  spi_->deselect();
   rdatacActive_ = false;
-  ads_wait_decode();
+  waitDecode_();
 }
 
 void ADS1299Plus::cmdRDATA()
 {
-  spi_.select();
-  spi_.xfer(ADS_CMD_RDATA);
-  spi_.deselect();
+  spi_->select();
+  spi_->xfer(ADS_CMD_RDATA);
+  spi_->deselect();
 }
 
 // ---- Acceso a registros ----
@@ -228,12 +298,12 @@ bool ADS1299Plus::writeOne_(uint8_t addr, uint8_t val)
   if (rdatacActive_ || addr > ADS_REG_CONFIG4)
     return false;
 
-  spi_.select();
-  spi_.xfer(ADS_CMD_WREG | addr);
-  spi_.xfer(0x00); // escribir 1 registro: n-1 = 0.
-  spi_.xfer(val);
-  spi_.deselect();
-  ads_wait_decode();
+  spi_->select();
+  spi_->xfer(ADS_CMD_WREG | addr);
+  spi_->xfer(0x00); // escribir 1 registro: n-1 = 0.
+  spi_->xfer(val);
+  spi_->deselect();
+  waitDecode_();
   return true;
 }
 
@@ -242,12 +312,12 @@ bool ADS1299Plus::readOne_(uint8_t addr, uint8_t &val)
   if (rdatacActive_ || addr > ADS_REG_CONFIG4)
     return false;
 
-  spi_.select();
-  spi_.xfer(ADS_CMD_RREG | addr);
-  spi_.xfer(0x00); // leer 1 registro: n-1 = 0.
-  val = spi_.xfer(ADS_CMD_NOP);
-  spi_.deselect();
-  ads_wait_decode();
+  spi_->select();
+  spi_->xfer(ADS_CMD_RREG | addr);
+  spi_->xfer(0x00); // leer 1 registro: n-1 = 0.
+  val = spi_->xfer(ADS_CMD_NOP);
+  spi_->deselect();
+  waitDecode_();
   return true;
 }
 
@@ -256,15 +326,15 @@ bool ADS1299Plus::writeBurst_(uint8_t startAddr, const uint8_t *data, size_t n)
   if (rdatacActive_ || data == nullptr || !validRegRange_(startAddr, n))
     return false;
 
-  spi_.select();
-  spi_.xfer(ADS_CMD_WREG | startAddr);
-  spi_.xfer((uint8_t)(n - 1));
+  spi_->select();
+  spi_->xfer(ADS_CMD_WREG | startAddr);
+  spi_->xfer((uint8_t)(n - 1));
   for (size_t i = 0; i < n; ++i)
   {
-    spi_.xfer(data[i]);
+    spi_->xfer(data[i]);
   }
-  spi_.deselect();
-  ads_wait_decode();
+  spi_->deselect();
+  waitDecode_();
   return true;
 }
 
@@ -273,15 +343,15 @@ bool ADS1299Plus::readBurst_(uint8_t startAddr, uint8_t *data, size_t n)
   if (rdatacActive_ || data == nullptr || !validRegRange_(startAddr, n))
     return false;
 
-  spi_.select();
-  spi_.xfer(ADS_CMD_RREG | startAddr);
-  spi_.xfer((uint8_t)(n - 1));
+  spi_->select();
+  spi_->xfer(ADS_CMD_RREG | startAddr);
+  spi_->xfer((uint8_t)(n - 1));
   for (size_t i = 0; i < n; ++i)
   {
-    data[i] = spi_.xfer(ADS_CMD_NOP);
+    data[i] = spi_->xfer(ADS_CMD_NOP);
   }
-  spi_.deselect();
-  ads_wait_decode();
+  spi_->deselect();
+  waitDecode_();
   return true;
 }
 
@@ -524,12 +594,12 @@ bool ADS1299Plus::readFrameRDATAC(uint32_t &status24, int32_t *chOut, size_t cap
     return false;
 
   uint8_t rxBuf[BYTES_PER_FRAME_MAX] = {0};
-  spi_.select();
+  spi_->select();
   for (uint16_t i = 0; i < nbytes; ++i)
   {
-    rxBuf[i] = spi_.xfer(ADS_CMD_NOP);
+    rxBuf[i] = spi_->xfer(ADS_CMD_NOP);
   }
-  spi_.deselect();
+  spi_->deselect();
 
   status24 = ((uint32_t)rxBuf[0] << 16) | ((uint32_t)rxBuf[1] << 8) | rxBuf[2];
 
@@ -559,12 +629,12 @@ bool ADS1299Plus::readDataOnDemand(uint32_t &status24, int32_t *chOut, size_t ca
   cmdRDATA();
 
   uint8_t rxBuf[BYTES_PER_FRAME_MAX] = {0};
-  spi_.select();
+  spi_->select();
   for (uint16_t i = 0; i < nbytes; ++i)
   {
-    rxBuf[i] = spi_.xfer(ADS_CMD_NOP);
+    rxBuf[i] = spi_->xfer(ADS_CMD_NOP);
   }
-  spi_.deselect();
+  spi_->deselect();
 
   status24 = ((uint32_t)rxBuf[0] << 16) | ((uint32_t)rxBuf[1] << 8) | rxBuf[2];
 
