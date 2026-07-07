@@ -1,0 +1,38 @@
+name: Arduino example compile
+
+on:
+  push:
+    branches:
+      - main
+      - portable-core-hal
+  pull_request:
+
+jobs:
+  arduino-examples:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+
+      - name: Install Arduino AVR core
+        run: |
+          arduino-cli core update-index
+          arduino-cli core install arduino:avr
+
+      - name: Install library into sketchbook
+        run: |
+          mkdir -p "$HOME/Arduino/libraries"
+          ln -s "$GITHUB_WORKSPACE" "$HOME/Arduino/libraries/ADS1299Plus"
+
+      - name: Compile BasicRead
+        run: arduino-cli compile --fqbn arduino:avr:uno examples/BasicRead
+
+      - name: Compile RegisterDump
+        run: arduino-cli compile --fqbn arduino:avr:uno examples/RegisterDump
+
+      - name: Compile HalBasedRead
+        run: arduino-cli compile --fqbn arduino:avr:uno examples/HalBasedRead

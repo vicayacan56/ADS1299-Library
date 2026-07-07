@@ -56,7 +56,13 @@ The workflow `.github/workflows/host-tests.yml` runs the host-side tests automat
 - pushes to `portable-core-hal`;
 - pull requests.
 
-This catches portable logic regressions before hardware testing.
+The workflow `.github/workflows/arduino-examples.yml` compiles the Arduino examples with Arduino CLI for `arduino:avr:uno`:
+
+- pushes to `main`;
+- pushes to `portable-core-hal`;
+- pull requests.
+
+Together, these checks catch portable logic regressions and Arduino example compilation regressions before hardware testing.
 
 ## What still needs hardware
 

@@ -479,3 +479,25 @@ The recommended next step is B7.1:
 ### Validation notes
 
 - The core-only test proves `src/core` can compile with `g++` using only `-I src`, without `Arduino.h`, `SPI.h`, or local Arduino stubs.
+
+## Phase B7.6 - Arduino example compile CI
+
+**Status:** Complete (CI validation only)
+
+### What was added
+
+- **`.github/workflows/arduino-examples.yml`**: GitHub Actions workflow that installs Arduino CLI, installs the Arduino AVR core, and compiles `BasicRead`, `RegisterDump`, and `HalBasedRead` for `arduino:avr:uno`.
+
+### What changed
+
+- CI now checks both host-side portable logic and Arduino example compilation.
+
+### Compatibility notes
+
+- No production source files are changed.
+- No examples are changed.
+- No PlatformIO configuration is introduced.
+
+### Validation notes
+
+- The Arduino workflow validates preprocessing, public includes, linking, and Arduino compatibility without requiring connected hardware.
