@@ -531,3 +531,33 @@ Recommended direction:
 - Keep `ADS1299_SafeSPI` stable for compatibility.
 - Plan a small portable protocol object that talks to `ADS1299_HAL`.
 - Move register/frame protocol execution only after that boundary is explicit and test-protected.
+
+## Phase B8.0 - Portable protocol object plan
+
+**Status:** Complete (planning only)
+
+### What was added
+
+- **`docs/phase-b8-protocol-object-plan.md`**: Design plan for an internal `ADS1299_Protocol` object behind `ADS1299Plus`.
+
+### Planning outcome
+
+B8 should not continue adding free helper functions to `ADS1299Core`.
+
+The next internal boundary should be an unintegrated, host-tested protocol object that talks directly to `ADS1299_HAL`.
+
+### Recommended next step
+
+Start with:
+
+```text
+Phase B8.1 - Add unintegrated ADS1299_Protocol skeleton and tests
+```
+
+Rules:
+
+- Do not change public `ADS1299Plus` API.
+- Do not change examples.
+- Do not change `ADS1299_SafeSPI`.
+- Do not route production behavior through the new object until command/register protocol tests exist.
+- Preserve host tests and Arduino example compile CI.
