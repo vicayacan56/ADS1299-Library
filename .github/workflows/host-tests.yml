@@ -1,0 +1,33 @@
+name: Host-side tests
+
+on:
+  push:
+    branches:
+      - main
+      - portable-core-hal
+  pull_request:
+
+jobs:
+  host-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Show compiler version
+        run: g++ --version
+
+      - name: Build host-side tests
+        run: >
+          g++ -std=c++11
+          -I tests/host/arduino_stubs
+          -I src
+          -I src/hal
+          tests/host/test_ads1299_host.cpp
+          src/ADS1299Plus.cpp
+          src/ADS1299_SafeSPI.cpp
+          -o tests/host/test_ads1299_host
+
+      - name: Run host-side tests
+        run: ./tests/host/test_ads1299_host

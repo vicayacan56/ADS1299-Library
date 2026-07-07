@@ -265,3 +265,23 @@ No API changes. ADS1299Plus and examples remain fully compatible.
 1. **These tests protect failure paths and lifecycle behavior**.
 2. **No production source files or examples are changed by this phase**.
 3. **Hardware validation is still needed for electrical and timing behavior**.
+
+## Phase B4.3 - Continuous host-side validation
+
+**Status:** In progress (GitHub Actions)
+
+### What was added
+
+- **`.github/workflows/host-tests.yml`**: GitHub Actions workflow that builds and runs the host-side tests on Ubuntu.
+
+### What the workflow checks
+
+- `g++` can compile the host-side test runner with the Arduino/SPI stubs.
+- The FakeHAL-based regression suite exits successfully.
+- The check runs automatically on pushes to `main` and `portable-core-hal`, and on pull requests.
+
+### Important notes for Phase B4.3
+
+1. **No hardware is required in CI**.
+2. **The workflow does not build Arduino sketches**; it only validates host-side regression tests.
+3. **This gives an automated safety net before larger core extraction work**.
