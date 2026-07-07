@@ -23,8 +23,8 @@ enum class ADS1299_SpiMode : uint8_t {
 };
 
 enum class ADS1299_GpioLevel : uint8_t {
-    LOW = 0,
-    HIGH = 1
+    LevelLow = 0,
+    LevelHigh = 1
 };
 
 struct ADS1299_SpiConfig {
