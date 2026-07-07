@@ -18,6 +18,17 @@ jobs:
       - name: Show compiler version
         run: g++ --version
 
+      - name: Build standalone core tests
+        run: >
+          g++ -std=c++11
+          -I src
+          tests/host/test_ads1299_core.cpp
+          src/core/ADS1299_Core.cpp
+          -o tests/host/test_ads1299_core
+
+      - name: Run standalone core tests
+        run: ./tests/host/test_ads1299_core
+
       - name: Build host-side tests
         run: >
           g++ -std=c++11

@@ -456,3 +456,26 @@ The recommended next step is B7.1:
 
 - Host tests cover the new configuration-byte helpers directly.
 - Existing host tests still verify register command sequencing and `configureDefaults()` behavior.
+
+## Phase B7.5 - Standalone portable core validation
+
+**Status:** Complete (validation only)
+
+### What was added
+
+- **`tests/host/test_ads1299_core.cpp`**: Standalone host test for `src/core/ADS1299_Core.*`.
+
+### What changed
+
+- GitHub Actions now builds and runs a core-only test without Arduino stubs before the full host-side ADS1299Plus/FakeHAL test.
+- Testing documentation now includes both the standalone core test command and the full host test command.
+
+### Compatibility notes
+
+- Production source behavior is unchanged.
+- Public API and examples are unchanged.
+- The Arduino-compatible host test remains in place.
+
+### Validation notes
+
+- The core-only test proves `src/core` can compile with `g++` using only `-I src`, without `Arduino.h`, `SPI.h`, or local Arduino stubs.
