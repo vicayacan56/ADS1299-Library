@@ -72,6 +72,18 @@ public:
     void end() override;
 
     /**
+     * Begin an SPI transaction using Arduino SPISettings.
+     *
+     * @param config platform-neutral SPI configuration
+     */
+    void beginTransaction(const ADS1299_SpiConfig& config) override;
+
+    /**
+     * End the active SPI transaction.
+     */
+    void endTransaction() override;
+
+    /**
      * Assert chip select (pull CS LOW).
      */
     void csLow() override;

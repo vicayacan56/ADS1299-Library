@@ -123,3 +123,20 @@ Minor corrections and enhancements to the HAL skeleton:
 - **Modern C++ conventions**: Switched from `virtual` to `override` keyword in derived class methods for better compile-time safety.
 
 No API changes. ADS1299Plus and examples remain fully compatible.
+
+## Phase B2.1 - SPI config and transactions
+
+**Status:** In progress (HAL extension only)
+
+### What was added
+
+- **`src/hal/ADS1299_HAL_Types.h`**: Platform-neutral SPI and GPIO types.
+- **`ADS1299_SpiConfig`**: Neutral SPI transaction configuration containing clock frequency, bit order, and SPI mode.
+- **`beginTransaction(const ADS1299_SpiConfig&)` / `endTransaction()`**: New HAL methods for explicit SPI transaction boundaries.
+- **Arduino backend transaction support**: `ADS1299_ArduinoHAL` now translates neutral SPI configuration to `SPISettings` and calls `SPI.beginTransaction()` / `SPI.endTransaction()`.
+
+### Important notes for Phase B2.1
+
+1. **ADS1299Plus does not use these HAL transactions yet**. The current driver still uses `ADS1299Plus` and `ADS1299_SafeSPI` exactly as before.
+2. **No acquisition behavior changes**. Frame reading, register values, SPI timing, and examples remain untouched.
+3. **This is still passive infrastructure**. The new transaction API prepares the HAL for future core integration without changing the public Arduino-compatible API.

@@ -14,6 +14,7 @@
 #ifndef ADS1299_HAL_H
 #define ADS1299_HAL_H
 
+#include "ADS1299_HAL_Types.h"
 #include <stdint.h>
 
 /**
@@ -39,6 +40,18 @@ public:
      * Releases SPI, GPIO pins, and other platform-specific resources.
      */
     virtual void end() = 0;
+
+    /**
+     * Begin an SPI transaction using platform-neutral settings.
+     *
+     * @param config SPI clock, bit order, and mode
+     */
+    virtual void beginTransaction(const ADS1299_SpiConfig& config) = 0;
+
+    /**
+     * End the active SPI transaction.
+     */
+    virtual void endTransaction() = 0;
 
     /**
      * Assert chip select (pull CS LOW).

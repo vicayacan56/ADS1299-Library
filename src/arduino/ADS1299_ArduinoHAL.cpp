@@ -13,6 +13,32 @@
 #include <Arduino.h>
 #include <SPI.h>
 
+static decltype(MSBFIRST) toArduinoBitOrder(ADS1299_SpiBitOrder bitOrder)
+{
+    switch (bitOrder) {
+    case ADS1299_SpiBitOrder::LsbFirst:
+        return LSBFIRST;
+    case ADS1299_SpiBitOrder::MsbFirst:
+    default:
+        return MSBFIRST;
+    }
+}
+
+static decltype(SPI_MODE0) toArduinoSpiMode(ADS1299_SpiMode mode)
+{
+    switch (mode) {
+    case ADS1299_SpiMode::Mode1:
+        return SPI_MODE1;
+    case ADS1299_SpiMode::Mode2:
+        return SPI_MODE2;
+    case ADS1299_SpiMode::Mode3:
+        return SPI_MODE3;
+    case ADS1299_SpiMode::Mode0:
+    default:
+        return SPI_MODE0;
+    }
+}
+
 /**
  * Constructor - store pin assignments
  */
@@ -82,6 +108,26 @@ void ADS1299_ArduinoHAL::begin()
 void ADS1299_ArduinoHAL::end()
 {
     // Reserved for future use (e.g., SPI.end() if needed)
+}
+
+/**
+ * Begin SPI transaction using Arduino SPISettings
+ */
+void ADS1299_ArduinoHAL::beginTransaction(const ADS1299_SpiConfig& config)
+{
+    SPI.beginTransaction(SPISettings(
+        config.clockHz,
+        toArduinoBitOrder(config.bitOrder),
+        toArduinoSpiMode(config.mode)
+    ));
+}
+
+/**
+ * End SPI transaction
+ */
+void ADS1299_ArduinoHAL::endTransaction()
+{
+    SPI.endTransaction();
 }
 
 /**
