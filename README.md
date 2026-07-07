@@ -43,11 +43,12 @@ If the ADS1299 PWDN pin is connected directly to VDD, use:
 
 ```cpp
 ADS1299Plus::ADS_PIN_UNUSED
+```
 
 
 If PWDN is connected to a microcontroller GPIO, pass the GPIO pin to the library.
 
-Repository structure
+## Repository structure
 src/
   ADS1299Plus.h
   ADS1299Plus.cpp
@@ -62,7 +63,8 @@ examples/
 docs/
   portability-roadmap.md
   uno-q-eeg-midi.md
-Roadmap
+
+## Roadmap
 
 The current implementation depends on Arduino APIs.
 
