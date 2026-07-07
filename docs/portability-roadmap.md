@@ -77,3 +77,38 @@ The Arduino backend will implement the HAL using Arduino GPIO, Arduino SPI and A
 - ESP-IDF.
 - Zephyr.
 - Bare-metal C++.
+
+## Phase B1 - HAL skeleton
+
+**Status:** In progress (conservative approach)
+
+### What was added
+
+- **`src/hal/ADS1299_HAL.h`**: Abstract base class defining the minimal interface for hardware operations (SPI, GPIO, delay).
+- **`src/arduino/ADS1299_ArduinoHAL.h`**: Header for Arduino-specific implementation.
+- **`src/arduino/ADS1299_ArduinoHAL.cpp`**: Arduino implementation using Arduino GPIO, Arduino SPI, and Arduino delay functions.
+
+### Important notes for Phase B1
+
+1. **No refactoring of ADS1299Plus yet**. The current `ADS1299Plus.h` and `ADS1299Plus.cpp` still use Arduino APIs directly (this is not a breaking change).
+2. **HAL is available but not integrated**. The driver will continue working as-is for all existing projects. This is a passive skeleton.
+3. **API remains compatible**. Examples (`BasicRead`, `RegisterDump`) continue to work without modification.
+4. **Future integration**: Phase B2+ will gradually refactor `ADS1299Plus` to use the HAL interface, allowing multiple backends.
+
+### Phase B1 HAL interface
+
+The `ADS1299_HAL` abstract class defines:
+
+- `begin()` / `end()`: Initialization and cleanup.
+- `csLow()` / `csHigh()`: Chip select control.
+- `spiTransfer(uint8_t)`: SPI communication.
+- `delayMicroseconds(uint32_t)` / `delayMilliseconds(uint32_t)`: Timing.
+- `setStart(bool)` / `setReset(bool)` / `setPwdn(bool)`: GPIO control signals.
+- `readDrdy()`: DRDY input monitoring.
+
+### Why conservative?
+
+- No breaking changes to the current API.
+- No mass refactoring of existing code.
+- The HAL is ready for future use, but integration will be done carefully in later phases.
+- Existing projects will continue to compile and function normally.
