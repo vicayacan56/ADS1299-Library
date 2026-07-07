@@ -501,3 +501,33 @@ The recommended next step is B7.1:
 ### Validation notes
 
 - The Arduino workflow validates preprocessing, public includes, linking, and Arduino compatibility without requiring connected hardware.
+
+## Phase B7.7 - Current architecture review
+
+**Status:** Complete (review only)
+
+### What was added
+
+- **`docs/b7-current-architecture-review.md`**: Review of the architecture after B7 helper extraction and CI expansion.
+
+### Review outcome
+
+B7 succeeded as a narrow extraction phase:
+
+- Public Arduino API preserved.
+- Examples preserved.
+- SPI command execution and acquisition behavior preserved.
+- Portable helper core introduced without platform dependencies.
+- Core-only and full host tests available.
+- Arduino example compile CI available.
+
+### Recommendation
+
+The next phase should pause before deeper extraction and define the next internal boundary first.
+
+Recommended direction:
+
+- Keep `ADS1299Plus` as the Arduino-facing facade.
+- Keep `ADS1299_SafeSPI` stable for compatibility.
+- Plan a small portable protocol object that talks to `ADS1299_HAL`.
+- Move register/frame protocol execution only after that boundary is explicit and test-protected.
