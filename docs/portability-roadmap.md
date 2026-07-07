@@ -176,3 +176,34 @@ No API changes. ADS1299Plus and examples remain fully compatible.
 2. **Register defaults remain unchanged**. B2.3 does not modify validated register values or configuration helpers.
 3. **HAL usage is opt-in** through the new constructor. Existing examples remain unchanged and continue to exercise the Arduino/SafeSPI path.
 4. **The Arduino-compatible API remains backward compatible**.
+
+## Phase B2.4 - Example compile validation
+
+**Status:** Complete
+
+### Validation results
+
+- **`examples/BasicRead/BasicRead.ino`**: Compiles successfully for Arduino Uno without hardware attached.
+- **`examples/RegisterDump/RegisterDump.ino`**: Compiles successfully for Arduino Uno without hardware attached.
+- Existing examples remain unchanged and continue to exercise the Arduino/SafeSPI path.
+- The HAL type naming was adjusted to avoid Arduino `LOW` / `HIGH` macro collisions.
+
+### Important notes for Phase B2.4
+
+1. **Compilation does not require a connected board**. Arduino IDE Verify/Compile validates preprocessing, compilation, and linking.
+2. **Runtime behavior still requires hardware validation**. Device ID reads, register dumps, and RDATAC frame stability need a physical ADS1299 setup.
+3. **B2.4 validates backward compatibility** for the existing public examples.
+
+## Phase B3 - Optional HAL-based Arduino example
+
+**Status:** In progress (new opt-in example)
+
+### What was added
+
+- **`examples/HalBasedRead/HalBasedRead.ino`**: Example sketch that constructs `ADS1299_ArduinoHAL` and passes it to the new `ADS1299Plus(ADS1299_HAL&, Pins, spiHz)` constructor.
+
+### Important notes for Phase B3
+
+1. **The original examples remain unchanged**.
+2. **HAL usage remains opt-in**. Users can keep using `ADS1299_SafeSPI` directly or choose the HAL-backed constructor.
+3. **Hardware behavior should be compared against BasicRead** once an ADS1299 board is available.
