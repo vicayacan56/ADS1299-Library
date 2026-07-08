@@ -9,9 +9,21 @@ class ADS1299_Protocol {
 public:
   explicit ADS1299_Protocol(ADS1299_HAL& hal);
 
+  void cmdWakeup();
+  void cmdStandby();
+  void cmdReset();
+  void cmdStart();
+  void cmdStop();
+  void cmdRDATAC();
+  void cmdSDATAC();
+  void cmdRDATA();
+
   bool isRDATACActive() const;
 
 private:
+  void sendCommand_(uint8_t command);
+  void waitDecode_();
+
   ADS1299_HAL* hal_;
   bool rdatacActive_ = false;
 };

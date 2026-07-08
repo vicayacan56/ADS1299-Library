@@ -585,3 +585,27 @@ Rules:
 ### Validation notes
 
 - The protocol skeleton test proves the new object can compile and be constructed without Arduino/SPI stubs.
+
+## Phase B8.2 - Protocol command dispatch
+
+**Status:** Complete (unintegrated protocol behavior)
+
+### What was added
+
+- Command methods on `ADS1299_Protocol` for `WAKEUP`, `STANDBY`, `RESET`, `START`, `STOP`, `RDATAC`, `SDATAC`, and `RDATA`.
+
+### What changed
+
+- The unintegrated protocol object can now emit ADS1299 command bytes through `ADS1299_HAL`.
+- `RDATAC`, `SDATAC`, and `RESET` update protocol RDATAC state.
+
+### Compatibility notes
+
+- `ADS1299Plus` is not integrated with `ADS1299_Protocol` yet.
+- `ADS1299_SafeSPI` is unchanged.
+- Public API and examples are unchanged.
+- Register access and acquisition are unchanged.
+
+### Validation notes
+
+- Protocol tests verify exact command bytes, CS low/high ordering, decode delays, `RDATA` without decode delay, and RDATAC state transitions.
