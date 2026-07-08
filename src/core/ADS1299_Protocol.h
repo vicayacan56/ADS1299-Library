@@ -18,6 +18,11 @@ public:
   void cmdSDATAC();
   void cmdRDATA();
 
+  bool writeReg(uint8_t addr, uint8_t value);
+  bool readReg(uint8_t addr, uint8_t& value);
+  bool writeRegs(uint8_t startAddr, const uint8_t* data, size_t n);
+  bool readRegs(uint8_t startAddr, uint8_t* data, size_t n);
+
   bool isRDATACActive() const;
 
 private:

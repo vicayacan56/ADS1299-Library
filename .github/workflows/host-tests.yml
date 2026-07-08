@@ -36,6 +36,7 @@ jobs:
           -I src/hal
           tests/host/test_ads1299_protocol.cpp
           src/core/ADS1299_Protocol.cpp
+          src/core/ADS1299_Core.cpp
           -o tests/host/test_ads1299_protocol
 
       - name: Run protocol object tests

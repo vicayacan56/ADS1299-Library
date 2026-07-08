@@ -609,3 +609,26 @@ Rules:
 ### Validation notes
 
 - Protocol tests verify exact command bytes, CS low/high ordering, decode delays, `RDATA` without decode delay, and RDATAC state transitions.
+
+## Phase B8.3 - Protocol register access
+
+**Status:** Complete (unintegrated protocol behavior)
+
+### What was added
+
+- Register methods on `ADS1299_Protocol`: `writeReg()`, `readReg()`, `writeRegs()`, and `readRegs()`.
+
+### What changed
+
+- The unintegrated protocol object can now emit single and burst RREG/WREG sequences through `ADS1299_HAL`.
+
+### Compatibility notes
+
+- `ADS1299Plus` is not integrated with `ADS1299_Protocol` yet.
+- `ADS1299_SafeSPI` is unchanged.
+- Public API and examples are unchanged.
+- Acquisition behavior is unchanged.
+
+### Validation notes
+
+- Protocol tests verify exact RREG/WREG command bytes, `n - 1` count bytes, write payload order, NOP read count, returned read values, invalid range rejection, null pointer rejection, and register access blocking while RDATAC is active.

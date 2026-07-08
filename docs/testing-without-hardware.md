@@ -24,7 +24,7 @@ From the repository root:
 g++ -std=c++11 -I src tests/host/test_ads1299_core.cpp src/core/ADS1299_Core.cpp -o tests/host/test_ads1299_core.exe
 .\tests\host\test_ads1299_core.exe
 
-g++ -std=c++11 -I src -I src/hal tests/host/test_ads1299_protocol.cpp src/core/ADS1299_Protocol.cpp -o tests/host/test_ads1299_protocol.exe
+g++ -std=c++11 -I src -I src/hal tests/host/test_ads1299_protocol.cpp src/core/ADS1299_Protocol.cpp src/core/ADS1299_Core.cpp -o tests/host/test_ads1299_protocol.exe
 .\tests\host\test_ads1299_protocol.exe
 
 g++ -std=c++11 -I tests/host/arduino_stubs -I src -I src/hal tests/host/test_ads1299_host.cpp src/core/ADS1299_Core.cpp src/ADS1299Plus.cpp src/ADS1299_SafeSPI.cpp -o tests/host/test_ads1299_host.exe
