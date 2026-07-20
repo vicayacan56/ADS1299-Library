@@ -602,6 +602,10 @@ bool ADS1299Plus::setBiasDeriveN(uint8_t chMask)
 // ---- Lectura de frames ----
 bool ADS1299Plus::readFrameRDATAC(uint32_t &status24, int32_t *chOut, size_t capacity)
 {
+  if (useHal_) {
+    return protocol_.readFrameRDATAC(num_channels_, status24, chOut, capacity);
+  }
+
   if (!rdatacActive_ || chOut == nullptr || capacity < num_channels_)
     return false;
 
@@ -622,6 +626,10 @@ bool ADS1299Plus::readFrameRDATAC(uint32_t &status24, int32_t *chOut, size_t cap
 
 bool ADS1299Plus::readDataOnDemand(uint32_t &status24, int32_t *chOut, size_t capacity)
 {
+  if (useHal_) {
+    return protocol_.readDataOnDemand(num_channels_, status24, chOut, capacity);
+  }
+
   if (rdatacActive_ || chOut == nullptr || capacity < num_channels_)
     return false;
 

@@ -786,3 +786,24 @@ This prepares for a future `ADS1299Plus` private `ADS1299_Protocol` member witho
 
 - Existing host tests verify HAL-backed begin, command sequencing, register sequencing, configure-defaults sequencing, RDATAC register guards, and shutdown behavior after the routing change.
 - B9.4 should route only HAL-backed frame acquisition through `ADS1299_Protocol`.
+
+## Phase B9.4 - Route HAL-backed frame acquisition through protocol
+
+**Status:** Complete (HAL-backed routing only)
+
+### What changed
+
+- HAL-backed `readFrameRDATAC()` now routes through `ADS1299_Protocol`.
+- HAL-backed `readDataOnDemand()` now routes through `ADS1299_Protocol`.
+- Frame transfer, STATUS decode, 24-bit sample decode, capacity guards, invalid-sync behavior, and ADS1299-4/6/8 frame sizes are now exercised through the protocol-backed HAL path.
+
+### What did not change
+
+- The classic `ADS1299_SafeSPI` path still uses the existing frame acquisition loops.
+- Public API and examples are unchanged.
+- Validated SPI settings, `NOP` frame clocking, RDATAC/RDATA byte counts, and `ADS1299Core::decodeFrame()` behavior are unchanged.
+
+### Validation notes
+
+- Existing host tests verify HAL-backed RDATAC frame decode, RDATA on-demand frame decode, variant frame sizes, invalid STATUS sync rejection, insufficient capacity rejection before SPI traffic, and RDATA blocking while RDATAC is active.
+- B9.5 should review the completed HAL-backed protocol routing before any further cleanup.
