@@ -807,3 +807,29 @@ This prepares for a future `ADS1299Plus` private `ADS1299_Protocol` member witho
 
 - Existing host tests verify HAL-backed RDATAC frame decode, RDATA on-demand frame decode, variant frame sizes, invalid STATUS sync rejection, insufficient capacity rejection before SPI traffic, and RDATA blocking while RDATAC is active.
 - B9.5 should review the completed HAL-backed protocol routing before any further cleanup.
+
+## Phase B9.5 - HAL integration review
+
+**Status:** Complete (review only)
+
+### What was added
+
+- **`docs/phase-b9-hal-integration-review.md`**: Critical review of the completed HAL-backed protocol routing.
+
+### Review outcome
+
+B9 achieved its goal: the optional HAL-backed `ADS1299Plus` path now uses `ADS1299_Protocol` for commands, registers, and frame acquisition, while the classic Arduino/SafeSPI path remains stable and user-facing.
+
+The remaining duplication between classic-path code and protocol-backed HAL routing is intentional for now.
+
+### Remaining risks
+
+- Real ADS1299 hardware validation is still required for timing, DRDY behavior, and long-running acquisition.
+- Arduino example compile validation should be checked through Arduino IDE or CI when local Arduino CLI is unavailable.
+- Future cleanup should not remove `ADS1299_SafeSPI` or reorganize files until the full Path B result is reviewed.
+
+### Recommended next phase
+
+```text
+Phase B10 - Path B closure review and release readiness
+```
