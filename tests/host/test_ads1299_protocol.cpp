@@ -215,12 +215,55 @@ static void testProtocolSkeleton()
     ProtocolFakeHAL hal;
     ADS1299_Protocol protocol(hal);
 
+    EXPECT_TRUE(protocol.attached());
     EXPECT_TRUE(!protocol.isRDATACActive());
     EXPECT_EQ(0, hal.beginCount);
     EXPECT_EQ(0, hal.transactionCount);
     EXPECT_EQ(0, hal.csLowCount);
     EXPECT_EQ(0, hal.csHighCount);
     EXPECT_EQ(0, hal.delayUsTotal);
+}
+
+static void testProtocolAttachability()
+{
+    ADS1299_Protocol protocol;
+    uint8_t regValue = 0xAA;
+    uint8_t regData = 0x55;
+    uint32_t status = 0;
+    int32_t channels[ADS1299Core::MAX_CHANNELS] = {0};
+
+    EXPECT_TRUE(!protocol.attached());
+    EXPECT_TRUE(!protocol.isRDATACActive());
+    protocol.cmdWakeup();
+    protocol.cmdRDATAC();
+    protocol.cmdRDATA();
+    protocol.cmdReset();
+    EXPECT_TRUE(!protocol.isRDATACActive());
+    EXPECT_TRUE(!protocol.writeReg(ADS_REG_CONFIG1, 0x96));
+    EXPECT_TRUE(!protocol.readReg(ADS_REG_CONFIG1, regValue));
+    EXPECT_TRUE(!protocol.writeRegs(ADS_REG_CONFIG1, &regData, 1));
+    EXPECT_TRUE(!protocol.readRegs(ADS_REG_CONFIG1, &regData, 1));
+    EXPECT_TRUE(!protocol.readFrameRDATAC(ADS1299Core::MIN_CHANNELS, status, channels, ADS1299Core::MIN_CHANNELS));
+    EXPECT_TRUE(!protocol.readDataOnDemand(ADS1299Core::MIN_CHANNELS, status, channels, ADS1299Core::MIN_CHANNELS));
+
+    ProtocolFakeHAL hal;
+    protocol.attach(hal);
+    EXPECT_TRUE(protocol.attached());
+    EXPECT_TRUE(!protocol.isRDATACActive());
+    protocol.cmdWakeup();
+    expectCommandWithDelay(hal, ADS_CMD_WAKEUP, 3);
+
+    hal.clearEvents();
+    protocol.cmdRDATAC();
+    EXPECT_TRUE(protocol.isRDATACActive());
+    expectCommandWithDelay(hal, ADS_CMD_RDATAC, 3);
+
+    ProtocolFakeHAL secondHal;
+    protocol.attach(secondHal);
+    EXPECT_TRUE(protocol.attached());
+    EXPECT_TRUE(!protocol.isRDATACActive());
+    protocol.cmdStop();
+    expectCommandWithDelay(secondHal, ADS_CMD_STOP, 3);
 }
 
 static void testCommandDispatch()
@@ -463,6 +506,7 @@ static void testReadDataOnDemandGuards()
 int main()
 {
     testProtocolSkeleton();
+    testProtocolAttachability();
     testCommandDispatch();
     testRdatacStateTransitions();
     testSingleRegisterAccess();

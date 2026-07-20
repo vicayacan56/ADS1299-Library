@@ -711,3 +711,31 @@ Phase B9.1 - Protocol attachability
 3. The HAL-backed path should use `ADS1299_Protocol` gradually: first attachability, then embedding, then commands/registers, then frames.
 4. RDATAC state must not become two unsynchronized sources of truth.
 5. No examples, public API, validated register defaults, SPI settings, or acquisition behavior should change during planning.
+
+## Phase B9.1 - Protocol attachability
+
+**Status:** Complete (protocol preparation only)
+
+### What was added
+
+- `ADS1299_Protocol()` default constructor.
+- `ADS1299_Protocol::attach(ADS1299_HAL& hal)`.
+- `ADS1299_Protocol::attached() const`.
+- Detached guards so protocol methods fail safely before a HAL is attached.
+
+### What changed
+
+`ADS1299_Protocol` can now be embedded in another object before a HAL is available.
+
+This prepares for a future `ADS1299Plus` private `ADS1299_Protocol` member without requiring heap allocation or immediate production routing.
+
+### Compatibility notes
+
+- `ADS1299Plus` is not integrated with `ADS1299_Protocol` yet.
+- `ADS1299_SafeSPI` is unchanged.
+- Public API and examples are unchanged.
+- Existing acquisition behavior remains routed through the current driver path.
+
+### Validation notes
+
+- Protocol tests verify detached rejection, no-op command safety before attach, attach behavior, RDATAC state reset on attach, and normal command dispatch after attach.

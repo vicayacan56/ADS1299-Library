@@ -4,76 +4,105 @@
 #include "../ADS1299_Registers.h"
 #include "ADS1299_Core.h"
 
+ADS1299_Protocol::ADS1299_Protocol()
+{
+}
+
 ADS1299_Protocol::ADS1299_Protocol(ADS1299_HAL& hal)
     : hal_(&hal)
 {
 }
 
-void ADS1299_Protocol::sendCommand_(uint8_t command)
+void ADS1299_Protocol::attach(ADS1299_HAL& hal)
 {
+  hal_ = &hal;
+  rdatacActive_ = false;
+}
+
+bool ADS1299_Protocol::attached() const
+{
+  return hal_ != nullptr;
+}
+
+bool ADS1299_Protocol::sendCommand_(uint8_t command)
+{
+  if (!attached())
+    return false;
+
   hal_->csLow();
   hal_->spiTransfer(command);
   hal_->csHigh();
+  return true;
 }
 
 void ADS1299_Protocol::waitDecode_()
 {
+  if (!attached())
+    return;
+
   hal_->delayMicroseconds(3);
 }
 
 void ADS1299_Protocol::cmdWakeup()
 {
-  sendCommand_(ADS_CMD_WAKEUP);
+  if (!sendCommand_(ADS_CMD_WAKEUP))
+    return;
   waitDecode_();
 }
 
 void ADS1299_Protocol::cmdStandby()
 {
-  sendCommand_(ADS_CMD_STANDBY);
+  if (!sendCommand_(ADS_CMD_STANDBY))
+    return;
   waitDecode_();
 }
 
 void ADS1299_Protocol::cmdReset()
 {
-  sendCommand_(ADS_CMD_RESET);
+  if (!sendCommand_(ADS_CMD_RESET))
+    return;
   rdatacActive_ = false;
   hal_->delayMicroseconds(20);
 }
 
 void ADS1299_Protocol::cmdStart()
 {
-  sendCommand_(ADS_CMD_START);
+  if (!sendCommand_(ADS_CMD_START))
+    return;
   waitDecode_();
 }
 
 void ADS1299_Protocol::cmdStop()
 {
-  sendCommand_(ADS_CMD_STOP);
+  if (!sendCommand_(ADS_CMD_STOP))
+    return;
   waitDecode_();
 }
 
 void ADS1299_Protocol::cmdRDATAC()
 {
-  sendCommand_(ADS_CMD_RDATAC);
+  if (!sendCommand_(ADS_CMD_RDATAC))
+    return;
   rdatacActive_ = true;
   waitDecode_();
 }
 
 void ADS1299_Protocol::cmdSDATAC()
 {
-  sendCommand_(ADS_CMD_SDATAC);
+  if (!sendCommand_(ADS_CMD_SDATAC))
+    return;
   rdatacActive_ = false;
   waitDecode_();
 }
 
 void ADS1299_Protocol::cmdRDATA()
 {
-  sendCommand_(ADS_CMD_RDATA);
+  (void)sendCommand_(ADS_CMD_RDATA);
 }
 
 bool ADS1299_Protocol::writeReg(uint8_t addr, uint8_t value)
 {
-  if (rdatacActive_ || addr > ADS_REG_CONFIG4)
+  if (!attached() || rdatacActive_ || addr > ADS_REG_CONFIG4)
     return false;
 
   hal_->csLow();
@@ -87,7 +116,7 @@ bool ADS1299_Protocol::writeReg(uint8_t addr, uint8_t value)
 
 bool ADS1299_Protocol::readReg(uint8_t addr, uint8_t& value)
 {
-  if (rdatacActive_ || addr > ADS_REG_CONFIG4)
+  if (!attached() || rdatacActive_ || addr > ADS_REG_CONFIG4)
     return false;
 
   hal_->csLow();
@@ -101,7 +130,7 @@ bool ADS1299_Protocol::readReg(uint8_t addr, uint8_t& value)
 
 bool ADS1299_Protocol::writeRegs(uint8_t startAddr, const uint8_t* data, size_t n)
 {
-  if (rdatacActive_ || data == nullptr || !ADS1299Core::validRegisterRange(startAddr, n))
+  if (!attached() || rdatacActive_ || data == nullptr || !ADS1299Core::validRegisterRange(startAddr, n))
     return false;
 
   hal_->csLow();
@@ -117,7 +146,7 @@ bool ADS1299_Protocol::writeRegs(uint8_t startAddr, const uint8_t* data, size_t 
 
 bool ADS1299_Protocol::readRegs(uint8_t startAddr, uint8_t* data, size_t n)
 {
-  if (rdatacActive_ || data == nullptr || !ADS1299Core::validRegisterRange(startAddr, n))
+  if (!attached() || rdatacActive_ || data == nullptr || !ADS1299Core::validRegisterRange(startAddr, n))
     return false;
 
   hal_->csLow();
@@ -133,7 +162,8 @@ bool ADS1299_Protocol::readRegs(uint8_t startAddr, uint8_t* data, size_t n)
 
 bool ADS1299_Protocol::readFrameBytes_(uint8_t channelCount, uint32_t& status24, int32_t* channels, size_t capacity)
 {
-  if (channelCount < ADS1299Core::MIN_CHANNELS ||
+  if (!attached() ||
+      channelCount < ADS1299Core::MIN_CHANNELS ||
       channelCount > ADS1299Core::MAX_CHANNELS ||
       channels == nullptr ||
       capacity < channelCount)
@@ -163,7 +193,7 @@ bool ADS1299_Protocol::readFrameRDATAC(uint8_t channelCount, uint32_t& status24,
 
 bool ADS1299_Protocol::readDataOnDemand(uint8_t channelCount, uint32_t& status24, int32_t* channels, size_t capacity)
 {
-  if (rdatacActive_)
+  if (!attached() || rdatacActive_)
     return false;
 
   if (channelCount < ADS1299Core::MIN_CHANNELS ||

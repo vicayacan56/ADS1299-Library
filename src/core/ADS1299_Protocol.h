@@ -7,7 +7,11 @@
 
 class ADS1299_Protocol {
 public:
+  ADS1299_Protocol();
   explicit ADS1299_Protocol(ADS1299_HAL& hal);
+
+  void attach(ADS1299_HAL& hal);
+  bool attached() const;
 
   void cmdWakeup();
   void cmdStandby();
@@ -28,10 +32,10 @@ public:
   bool isRDATACActive() const;
 
 private:
-  void sendCommand_(uint8_t command);
+  bool sendCommand_(uint8_t command);
   void waitDecode_();
   bool readFrameBytes_(uint8_t channelCount, uint32_t& status24, int32_t* channels, size_t capacity);
 
-  ADS1299_HAL* hal_;
+  ADS1299_HAL* hal_ = nullptr;
   bool rdatacActive_ = false;
 };
