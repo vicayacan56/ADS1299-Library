@@ -868,3 +868,18 @@ It should not be described as a hardware-validated release until real ADS1299 sm
 2. Check host and Arduino CI results on GitHub.
 3. Run hardware smoke tests when an ADS1299 board is available.
 4. Decide whether to merge `portable-core-hal` toward the stable branch or prepare a release candidate.
+
+## Phase C1 - Documentation triage and public docs index
+
+**Status:** Complete (documentation organization only)
+
+### What was added
+
+- **`docs/README.md`**: Documentation index separating user-facing docs, maintainer docs, and historical design notes.
+- Main README link to the documentation index.
+
+### Cleanup decision
+
+C1 does not move or delete documents.
+
+The first cleanup step is to make the existing documentation navigable before reorganizing paths. Future cleanup phases can simplify the README, create a user guide, and optionally move historical phase documents after links are reviewed.

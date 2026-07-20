@@ -58,6 +58,12 @@ ADS1299Plus ads(adsHal, adsPins);
 
 See `docs/hal-usage-guide.md` for details.
 
+## Documentation
+
+Start with [`docs/README.md`](docs/README.md) for a guided documentation index.
+
+Most users only need the main README, `examples/BasicRead`, `examples/RegisterDump`, and `docs/hal-usage-guide.md`. The phase documents in `docs/` are historical maintainer notes.
+
 ## Testing without hardware
 
 You can compile the Arduino examples without a connected board by using Arduino IDE `Verify/Compile`.
