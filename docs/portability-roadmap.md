@@ -739,3 +739,27 @@ This prepares for a future `ADS1299Plus` private `ADS1299_Protocol` member witho
 ### Validation notes
 
 - Protocol tests verify detached rejection, no-op command safety before attach, attach behavior, RDATAC state reset on attach, and normal command dispatch after attach.
+
+## Phase B9.2 - Embed protocol in ADS1299Plus without routing
+
+**Status:** Complete (storage only)
+
+### What was added
+
+- `ADS1299Plus` now has a private `ADS1299_Protocol protocol_` member.
+- The classic `ADS1299_SafeSPI` constructor leaves the protocol object detached.
+- The optional HAL-backed constructor attaches the protocol object to the provided `ADS1299_HAL`.
+- Host-side build commands now link `src/core/ADS1299_Protocol.cpp` because `ADS1299Plus` owns a protocol member.
+
+### What did not change
+
+- No public `ADS1299Plus` API changed.
+- No command, register, or frame method is routed through `ADS1299_Protocol` yet.
+- The classic Arduino/SafeSPI path remains the active production path for classic construction.
+- The HAL-backed path still uses the existing HAL-backed `ADS1299_SafeSPI` routing.
+- Examples are unchanged.
+
+### Validation notes
+
+- Existing host tests continue to validate current `ADS1299Plus` behavior after embedding the protocol object.
+- B9.3 should be the first phase that changes HAL-backed command/register routing.

@@ -12,6 +12,7 @@ ADS1299Plus::ADS1299Plus(ADS1299_SafeSPI &spi, const Pins &pins)
     : ownedSpi_(pins.cs),
       spi_(&spi),
       hal_(nullptr),
+      protocol_(),
       pins_(pins),
       useHal_(false) {}
 
@@ -19,6 +20,7 @@ ADS1299Plus::ADS1299Plus(ADS1299_HAL &hal, const Pins &pins, uint32_t spiHz)
     : ownedSpi_(hal, spiHz),
       spi_(&ownedSpi_),
       hal_(&hal),
+      protocol_(hal),
       pins_(pins),
       useHal_(true) {}
 

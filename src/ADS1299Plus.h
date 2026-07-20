@@ -26,6 +26,7 @@
 #include "ADS1299_Registers.h"
 #include "ADS1299_SafeSPI.h"
 #include "core/ADS1299_Core.h"
+#include "core/ADS1299_Protocol.h"
 
 class ADS1299Plus {
 public:
@@ -222,6 +223,7 @@ private:
   ADS1299_SafeSPI ownedSpi_;
   ADS1299_SafeSPI* spi_;
   ADS1299_HAL* hal_;
+  ADS1299_Protocol protocol_;
   Pins pins_;
   bool useHal_ = false;
   bool rdatacActive_ = false;
