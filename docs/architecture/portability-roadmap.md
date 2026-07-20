@@ -292,8 +292,8 @@ No API changes. ADS1299Plus and examples remain fully compatible.
 
 ### What was added
 
-- **`docs/hal-usage-guide.md`**: Explains the classic Arduino/SafeSPI path and the optional Arduino HAL path.
-- **`docs/testing-without-hardware.md`**: Explains Arduino compile validation, host-side tests, CI, and remaining hardware validation needs.
+- **`docs/user/hal-usage-guide.md`**: Explains the classic Arduino/SafeSPI path and the optional Arduino HAL path.
+- **`docs/user/testing-without-hardware.md`**: Explains Arduino compile validation, host-side tests, CI, and remaining hardware validation needs.
 - **`README.md` updates**: Adds the HAL path, host-side test command, and links to the detailed documentation.
 
 ### Important notes for Phase B5
@@ -308,7 +308,7 @@ No API changes. ADS1299Plus and examples remain fully compatible.
 
 ### What was added
 
-- **`docs/b6-critical-review.md`**: Critical review of the Path B work completed so far, including architecture, HAL direction, reference usage, validation coverage, user simplicity, and B7 readiness.
+- **`docs/architecture/b6-critical-review.md`**: Critical review of the Path B work completed so far, including architecture, HAL direction, reference usage, validation coverage, user simplicity, and B7 readiness.
 
 ### Review outcome
 
@@ -334,7 +334,7 @@ Path B is coherent and remains aligned with the long-term goal:
 
 ### What was added
 
-- **`docs/phase-b7-core-boundary-plan.md`**: Defines the intended boundary between the public Arduino facade, future portable ADS1299 core logic, `ADS1299_HAL`, and platform backends.
+- **`docs/history/phase-b7-core-boundary-plan.md`**: Defines the intended boundary between the public Arduino facade, future portable ADS1299 core logic, `ADS1299_HAL`, and platform backends.
 
 ### Planning outcome
 
@@ -508,7 +508,7 @@ The recommended next step is B7.1:
 
 ### What was added
 
-- **`docs/b7-current-architecture-review.md`**: Review of the architecture after B7 helper extraction and CI expansion.
+- **`docs/architecture/b7-current-architecture-review.md`**: Review of the architecture after B7 helper extraction and CI expansion.
 
 ### Review outcome
 
@@ -538,7 +538,7 @@ Recommended direction:
 
 ### What was added
 
-- **`docs/phase-b8-protocol-object-plan.md`**: Design plan for an internal `ADS1299_Protocol` object behind `ADS1299Plus`.
+- **`docs/history/phase-b8-protocol-object-plan.md`**: Design plan for an internal `ADS1299_Protocol` object behind `ADS1299Plus`.
 
 ### Planning outcome
 
@@ -666,7 +666,7 @@ Rules:
 
 ### What was added
 
-- **`docs/phase-b8-protocol-boundary-review.md`**: Review of the internal `ADS1299_Protocol` boundary after B8.1 through B8.4.
+- **`docs/architecture/phase-b8-protocol-boundary-review.md`**: Review of the internal `ADS1299_Protocol` boundary after B8.1 through B8.4.
 
 ### Review outcome
 
@@ -692,7 +692,7 @@ B9.0 should decide how the optional HAL-backed `ADS1299Plus` path will use `ADS1
 
 ### What was added
 
-- **`docs/phase-b9-hal-protocol-integration-plan.md`**: Integration plan for routing the optional HAL-backed `ADS1299Plus` path through `ADS1299_Protocol`.
+- **`docs/history/phase-b9-hal-protocol-integration-plan.md`**: Integration plan for routing the optional HAL-backed `ADS1299Plus` path through `ADS1299_Protocol`.
 
 ### Planning outcome
 
@@ -814,7 +814,7 @@ This prepares for a future `ADS1299Plus` private `ADS1299_Protocol` member witho
 
 ### What was added
 
-- **`docs/phase-b9-hal-integration-review.md`**: Critical review of the completed HAL-backed protocol routing.
+- **`docs/architecture/phase-b9-hal-integration-review.md`**: Critical review of the completed HAL-backed protocol routing.
 
 ### Review outcome
 
@@ -840,7 +840,7 @@ Phase B10 - Path B closure review and release readiness
 
 ### What was added
 
-- **`docs/phase-b10-path-b-closure-review.md`**: Final Path B closure and release-readiness review.
+- **`docs/architecture/phase-b10-path-b-closure-review.md`**: Final Path B closure and release-readiness review.
 
 ### Review outcome
 
@@ -899,3 +899,21 @@ The first cleanup step is to make the existing documentation navigable before re
 C2 does not change code, examples, tests, CI, or library metadata.
 
 The README should stay focused on ordinary Arduino users. Maintainer notes, Path B history, HAL architecture details, and release-readiness reviews should stay in `docs/`.
+
+## Phase C3 - User guide and docs subfolders
+
+**Status:** Complete (documentation organization only)
+
+### What changed
+
+- `docs/user/` now contains user-facing documentation.
+- `docs/architecture/` now contains roadmap and architecture/review documents.
+- `docs/history/` now contains historical plans and design references.
+- **`docs/user/user-guide.md`** was added as the main practical usage guide.
+- README and docs index links were updated for the new structure.
+
+### Cleanup decision
+
+C3 keeps all documentation available while making the folder easier to navigate.
+
+The historical phase documents remain in the repository, but they are no longer mixed with user-facing guides at the top level of `docs/`.

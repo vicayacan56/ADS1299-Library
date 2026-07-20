@@ -119,12 +119,12 @@ Recommendation:
 
 Severity: Low.
 
-`docs/hal-design-references.md` and `docs/phase-b2-integration-plan.md` are useful technical references, but some snippets are historical pseudo-code or pre-implementation planning. A new contributor may confuse them with the exact current implementation.
+`docs/history/hal-design-references.md` and `docs/history/phase-b2-integration-plan.md` are useful technical references, but some snippets are historical pseudo-code or pre-implementation planning. A new contributor may confuse them with the exact current implementation.
 
 Recommendation:
 
 - Keep both documents.
-- Add short headers later clarifying that they are design/planning references, while `README.md`, `docs/hal-usage-guide.md`, and `docs/portability-roadmap.md` describe current usage.
+- Add short headers later clarifying that they are design/planning references, while `README.md`, `docs/user/hal-usage-guide.md`, and `docs/architecture/portability-roadmap.md` describe current usage.
 
 ## Reference Usage Review
 

@@ -6,7 +6,7 @@
 
 **Branch:** `portable-core-hal`
 
-**Current-use note:** This document records the Phase B2.0 design study and reference reasoning. Some snippets are planning examples. For current user-facing usage and implementation status, see `README.md`, `docs/hal-usage-guide.md`, and `docs/portability-roadmap.md`.
+**Current-use note:** This document records the Phase B2.0 design study and reference reasoning. Some snippets are planning examples. For current user-facing usage and implementation status, see `README.md`, `docs/user/hal-usage-guide.md`, and `docs/architecture/portability-roadmap.md`.
 
 **Document Purpose:** Define HAL design principles and neutral interfaces before Phase B2.1 implementation.
 

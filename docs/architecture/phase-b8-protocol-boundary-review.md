@@ -61,7 +61,7 @@ These boundaries are appropriate. `ADS1299_Protocol` should stay internal and sh
 
 ## Reference Alignment
 
-The implementation remains aligned with the reference work already captured in `docs/hal-design-references.md` and `docs/phase-b2-integration-plan.md`:
+The implementation remains aligned with the reference work already captured in `docs/history/hal-design-references.md` and `docs/history/phase-b2-integration-plan.md`:
 
 - the protocol uses neutral `ADS1299_HAL` operations instead of Arduino APIs;
 - command and register operations preserve ADS1299 byte sequencing;

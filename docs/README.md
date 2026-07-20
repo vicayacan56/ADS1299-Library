@@ -1,52 +1,45 @@
 # ADS1299Plus Documentation
 
-This folder contains user documentation, validation notes, architecture notes, and historical design records.
+This folder is divided by audience.
 
-If you only want to use the library from Arduino IDE, start with the short list below and ignore the phase/history documents.
+If you only want to use the library from Arduino IDE, start with **User Documentation**.
 
-## Start Here
+## User Documentation
 
-- [Main README](../README.md): project overview, supported devices, examples, and quick usage.
-- [HAL Usage Guide](hal-usage-guide.md): classic Arduino path and optional Arduino HAL path.
-- [Testing Without Hardware](testing-without-hardware.md): how to compile examples and run host-side checks.
+Start here:
 
-## User-Facing Documents
+- [User Guide](user/user-guide.md): installation, wiring, examples, acquisition flow, and common problems.
+- [HAL Usage Guide](user/hal-usage-guide.md): classic Arduino path and optional Arduino HAL path.
+- [Testing Without Hardware](user/testing-without-hardware.md): Arduino compile checks and host-side tests.
+- [UNO Q EEG MIDI Notes](user/uno-q-eeg-midi.md): project-specific notes.
 
-These are the useful documents for most users:
-
-- [HAL Usage Guide](hal-usage-guide.md)
-- [Testing Without Hardware](testing-without-hardware.md)
-- [UNO Q EEG MIDI Notes](uno-q-eeg-midi.md)
-
-The recommended default path for Arduino users remains:
+Recommended default Arduino usage:
 
 ```cpp
 ADS1299_SafeSPI adsSpi(PIN_CS);
 ADS1299Plus ads(adsSpi, adsPins);
 ```
 
-The HAL path is optional and intended for advanced users or future backend work.
+## Architecture and Maintainer Notes
 
-## Maintainer Documents
+These documents explain the current internal design and release/readiness state:
 
-These documents explain the current architecture and validation direction:
-
-- [Portability Roadmap](portability-roadmap.md)
-- [Path B Closure Review](phase-b10-path-b-closure-review.md)
-- [HAL Integration Review](phase-b9-hal-integration-review.md)
-- [Protocol Boundary Review](phase-b8-protocol-boundary-review.md)
-- [Current Architecture Review](b7-current-architecture-review.md)
-- [Critical Review of Path B](b6-critical-review.md)
+- [Portability Roadmap](architecture/portability-roadmap.md)
+- [Path B Closure Review](architecture/phase-b10-path-b-closure-review.md)
+- [HAL Integration Review](architecture/phase-b9-hal-integration-review.md)
+- [Protocol Boundary Review](architecture/phase-b8-protocol-boundary-review.md)
+- [Current Architecture Review](architecture/b7-current-architecture-review.md)
+- [Critical Review of Path B](architecture/b6-critical-review.md)
 
 ## Historical Design Notes
 
-These files are useful for understanding why decisions were made. They are not required reading for normal library use.
+These files explain why earlier decisions were made. They are not required reading for normal use.
 
-- [HAL Design References](hal-design-references.md)
-- [Phase B2 Integration Plan](phase-b2-integration-plan.md)
-- [Phase B7 Core Boundary Plan](phase-b7-core-boundary-plan.md)
-- [Phase B8 Protocol Object Plan](phase-b8-protocol-object-plan.md)
-- [Phase B9 HAL Protocol Integration Plan](phase-b9-hal-protocol-integration-plan.md)
+- [HAL Design References](history/hal-design-references.md)
+- [Phase B2 Integration Plan](history/phase-b2-integration-plan.md)
+- [Phase B7 Core Boundary Plan](history/phase-b7-core-boundary-plan.md)
+- [Phase B8 Protocol Object Plan](history/phase-b8-protocol-object-plan.md)
+- [Phase B9 HAL Protocol Integration Plan](history/phase-b9-hal-protocol-integration-plan.md)
 
 ## Current Project Status
 
@@ -60,12 +53,3 @@ ADS1299Plus is currently an Arduino-compatible library with:
 - GitHub Actions for host tests and Arduino example compilation.
 
 It should not yet be described as a fully portable ADS1299 library for all embedded platforms. STM32, ESP-IDF, Zephyr, and bare-metal backends are future possibilities, not current supported backends.
-
-## Documentation Cleanup Direction
-
-The documentation is being simplified in small steps:
-
-1. Keep the README simple for users.
-2. Keep this index as the navigation hub.
-3. Keep architecture and historical notes available for maintainers.
-4. Avoid moving many files at once until links are reviewed.

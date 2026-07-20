@@ -6,7 +6,7 @@
 
 **Branch:** `portable-core-hal`
 
-**Current-use note:** This document records the Phase B2 implementation plan. Some code blocks are planning snippets, not a promise that the current source matches them line-for-line. For current usage and validation status, see `README.md`, `docs/hal-usage-guide.md`, `docs/testing-without-hardware.md`, and `docs/portability-roadmap.md`.
+**Current-use note:** This document records the Phase B2 implementation plan. Some code blocks are planning snippets, not a promise that the current source matches them line-for-line. For current usage and validation status, see `README.md`, `docs/user/hal-usage-guide.md`, `docs/user/testing-without-hardware.md`, and `docs/architecture/portability-roadmap.md`.
 
 ---
 
@@ -674,7 +674,7 @@ Testing:
 ☐ Verify no behavior change (examples still work)
 
 Documentation:
-☐ Update docs/phase-b2-integration-plan.md
+☐ Update docs/history/phase-b2-integration-plan.md
 ```
 
 #### B2.2 Checklist
@@ -692,7 +692,7 @@ Testing:
 ☐ Verify no regressions in examples
 
 Documentation:
-☐ Update docs/phase-b2-integration-plan.md
+☐ Update docs/history/phase-b2-integration-plan.md
 ☐ Add usage examples in header comments
 ```
 
@@ -713,8 +713,8 @@ Testing:
 ☐ Compare initialization traces
 
 Documentation:
-☐ Update docs/phase-b2-integration-plan.md
-☐ Update docs/portability-roadmap.md
+☐ Update docs/history/phase-b2-integration-plan.md
+☐ Update docs/architecture/portability-roadmap.md
 ```
 
 #### B2.4 Checklist

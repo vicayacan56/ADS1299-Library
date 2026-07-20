@@ -119,7 +119,7 @@ ADS1299_ArduinoHAL adsHal(PIN_CS, PIN_START, PIN_RESET, PIN_PWDN, PIN_DRDY);
 ADS1299Plus ads(adsHal, adsPins);
 ```
 
-Most Arduino users should keep using `ADS1299_SafeSPI`. See [docs/hal-usage-guide.md](docs/hal-usage-guide.md) for details.
+Most Arduino users should keep using `ADS1299_SafeSPI`. See [docs/user/hal-usage-guide.md](docs/user/hal-usage-guide.md) for details.
 
 ## PWDN Pin
 
@@ -135,7 +135,7 @@ If PWDN is connected to a microcontroller GPIO, pass that GPIO pin in `ADS1299Pl
 
 You can compile the examples without a connected ADS1299 board by using Arduino IDE `Verify/Compile`.
 
-The repository also includes host-side tests for portable logic and HAL sequencing. See [docs/testing-without-hardware.md](docs/testing-without-hardware.md).
+The repository also includes host-side tests for portable logic and HAL sequencing. See [docs/user/testing-without-hardware.md](docs/user/testing-without-hardware.md).
 
 GitHub Actions also builds:
 
@@ -161,12 +161,13 @@ Start with [docs/README.md](docs/README.md) for a guided documentation index.
 Most users only need:
 
 - this README;
+- [docs/user/user-guide.md](docs/user/user-guide.md);
 - `examples/RegisterDump`;
 - `examples/BasicRead`;
-- [docs/hal-usage-guide.md](docs/hal-usage-guide.md);
-- [docs/testing-without-hardware.md](docs/testing-without-hardware.md).
+- [docs/user/hal-usage-guide.md](docs/user/hal-usage-guide.md);
+- [docs/user/testing-without-hardware.md](docs/user/testing-without-hardware.md).
 
-The phase documents in `docs/` are maintainer notes and historical design records.
+The phase documents in `docs/architecture/` and `docs/history/` are maintainer notes and historical design records.
 
 ## Current Status
 
