@@ -883,3 +883,19 @@ It should not be described as a hardware-validated release until real ADS1299 sm
 C1 does not move or delete documents.
 
 The first cleanup step is to make the existing documentation navigable before reorganizing paths. Future cleanup phases can simplify the README, create a user guide, and optionally move historical phase documents after links are reviewed.
+
+## Phase C2 - Simplify public README
+
+**Status:** Complete (public documentation cleanup only)
+
+### What changed
+
+- The root `README.md` was rewritten as a user-facing entry point.
+- The README now focuses on installation, quick start, examples, optional HAL usage, validation, and documentation links.
+- Historical phase details were kept out of the public README and remain available through `docs/README.md`.
+
+### Cleanup decision
+
+C2 does not change code, examples, tests, CI, or library metadata.
+
+The README should stay focused on ordinary Arduino users. Maintainer notes, Path B history, HAL architecture details, and release-readiness reviews should stay in `docs/`.
