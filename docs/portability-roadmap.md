@@ -763,3 +763,26 @@ This prepares for a future `ADS1299Plus` private `ADS1299_Protocol` member witho
 
 - Existing host tests continue to validate current `ADS1299Plus` behavior after embedding the protocol object.
 - B9.3 should be the first phase that changes HAL-backed command/register routing.
+
+## Phase B9.3 - Route HAL-backed commands and registers through protocol
+
+**Status:** Complete (HAL-backed routing only)
+
+### What changed
+
+- HAL-backed command methods now route through `ADS1299_Protocol`.
+- HAL-backed single-register reads and writes now route through `ADS1299_Protocol`.
+- HAL-backed burst-register reads and writes now route through `ADS1299_Protocol`.
+- Public `ADS1299Plus::rdatacActive_` remains synchronized after `cmdReset()`, `cmdRDATAC()`, and `cmdSDATAC()`.
+
+### What did not change
+
+- The classic `ADS1299_SafeSPI` path still uses the existing command and register code.
+- Frame acquisition is not routed through `ADS1299_Protocol` yet.
+- Public API and examples are unchanged.
+- Validated register defaults, SPI settings, command byte order, and decode delays are unchanged.
+
+### Validation notes
+
+- Existing host tests verify HAL-backed begin, command sequencing, register sequencing, configure-defaults sequencing, RDATAC register guards, and shutdown behavior after the routing change.
+- B9.4 should route only HAL-backed frame acquisition through `ADS1299_Protocol`.

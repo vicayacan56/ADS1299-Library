@@ -221,6 +221,11 @@ void ADS1299Plus::end()
 // ---- Comandos SPI ----
 void ADS1299Plus::cmdWakeup()
 {
+  if (useHal_) {
+    protocol_.cmdWakeup();
+    return;
+  }
+
   spi_->select();
   spi_->xfer(ADS_CMD_WAKEUP);
   spi_->deselect();
@@ -229,6 +234,11 @@ void ADS1299Plus::cmdWakeup()
 
 void ADS1299Plus::cmdStandby()
 {
+  if (useHal_) {
+    protocol_.cmdStandby();
+    return;
+  }
+
   spi_->select();
   spi_->xfer(ADS_CMD_STANDBY);
   spi_->deselect();
@@ -237,6 +247,12 @@ void ADS1299Plus::cmdStandby()
 
 void ADS1299Plus::cmdReset()
 {
+  if (useHal_) {
+    protocol_.cmdReset();
+    rdatacActive_ = false; // El estado real se normaliza con cmdSDATAC() tras reset.
+    return;
+  }
+
   spi_->select();
   spi_->xfer(ADS_CMD_RESET);
   spi_->deselect();
@@ -246,6 +262,11 @@ void ADS1299Plus::cmdReset()
 
 void ADS1299Plus::cmdStart()
 {
+  if (useHal_) {
+    protocol_.cmdStart();
+    return;
+  }
+
   spi_->select();
   spi_->xfer(ADS_CMD_START);
   spi_->deselect();
@@ -254,6 +275,11 @@ void ADS1299Plus::cmdStart()
 
 void ADS1299Plus::cmdStop()
 {
+  if (useHal_) {
+    protocol_.cmdStop();
+    return;
+  }
+
   spi_->select();
   spi_->xfer(ADS_CMD_STOP);
   spi_->deselect();
@@ -262,6 +288,12 @@ void ADS1299Plus::cmdStop()
 
 void ADS1299Plus::cmdRDATAC()
 {
+  if (useHal_) {
+    protocol_.cmdRDATAC();
+    rdatacActive_ = true;
+    return;
+  }
+
   spi_->select();
   spi_->xfer(ADS_CMD_RDATAC);
   spi_->deselect();
@@ -271,6 +303,12 @@ void ADS1299Plus::cmdRDATAC()
 
 void ADS1299Plus::cmdSDATAC()
 {
+  if (useHal_) {
+    protocol_.cmdSDATAC();
+    rdatacActive_ = false;
+    return;
+  }
+
   spi_->select();
   spi_->xfer(ADS_CMD_SDATAC);
   spi_->deselect();
@@ -280,6 +318,11 @@ void ADS1299Plus::cmdSDATAC()
 
 void ADS1299Plus::cmdRDATA()
 {
+  if (useHal_) {
+    protocol_.cmdRDATA();
+    return;
+  }
+
   spi_->select();
   spi_->xfer(ADS_CMD_RDATA);
   spi_->deselect();
@@ -288,6 +331,10 @@ void ADS1299Plus::cmdRDATA()
 // ---- Acceso a registros ----
 bool ADS1299Plus::writeOne_(uint8_t addr, uint8_t val)
 {
+  if (useHal_) {
+    return protocol_.writeReg(addr, val);
+  }
+
   if (rdatacActive_ || addr > ADS_REG_CONFIG4)
     return false;
 
@@ -302,6 +349,10 @@ bool ADS1299Plus::writeOne_(uint8_t addr, uint8_t val)
 
 bool ADS1299Plus::readOne_(uint8_t addr, uint8_t &val)
 {
+  if (useHal_) {
+    return protocol_.readReg(addr, val);
+  }
+
   if (rdatacActive_ || addr > ADS_REG_CONFIG4)
     return false;
 
@@ -316,6 +367,10 @@ bool ADS1299Plus::readOne_(uint8_t addr, uint8_t &val)
 
 bool ADS1299Plus::writeBurst_(uint8_t startAddr, const uint8_t *data, size_t n)
 {
+  if (useHal_) {
+    return protocol_.writeRegs(startAddr, data, n);
+  }
+
   if (rdatacActive_ || data == nullptr || !validRegRange_(startAddr, n))
     return false;
 
@@ -333,6 +388,10 @@ bool ADS1299Plus::writeBurst_(uint8_t startAddr, const uint8_t *data, size_t n)
 
 bool ADS1299Plus::readBurst_(uint8_t startAddr, uint8_t *data, size_t n)
 {
+  if (useHal_) {
+    return protocol_.readRegs(startAddr, data, n);
+  }
+
   if (rdatacActive_ || data == nullptr || !validRegRange_(startAddr, n))
     return false;
 
