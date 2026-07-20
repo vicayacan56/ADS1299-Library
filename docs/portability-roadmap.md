@@ -685,3 +685,29 @@ Phase B9.0 - HAL-backed protocol integration plan
 ```
 
 B9.0 should decide how the optional HAL-backed `ADS1299Plus` path will use `ADS1299_Protocol` while keeping the classic `ADS1299_SafeSPI` path stable.
+
+## Phase B9.0 - HAL-backed protocol integration plan
+
+**Status:** Complete (planning only)
+
+### What was added
+
+- **`docs/phase-b9-hal-protocol-integration-plan.md`**: Integration plan for routing the optional HAL-backed `ADS1299Plus` path through `ADS1299_Protocol`.
+
+### Planning outcome
+
+B9 should integrate in small steps and avoid routing production behavior before the protocol object can be safely embedded or attached without heap allocation.
+
+The recommended next phase is:
+
+```text
+Phase B9.1 - Protocol attachability
+```
+
+### Important decisions
+
+1. The classic Arduino/SafeSPI path remains the default user-facing path.
+2. `ADS1299_Protocol` stays internal.
+3. The HAL-backed path should use `ADS1299_Protocol` gradually: first attachability, then embedding, then commands/registers, then frames.
+4. RDATAC state must not become two unsynchronized sources of truth.
+5. No examples, public API, validated register defaults, SPI settings, or acquisition behavior should change during planning.
