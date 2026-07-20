@@ -833,3 +833,38 @@ The remaining duplication between classic-path code and protocol-backed HAL rout
 ```text
 Phase B10 - Path B closure review and release readiness
 ```
+
+## Phase B10 - Path B closure review and release readiness
+
+**Status:** Complete (review only)
+
+### What was added
+
+- **`docs/phase-b10-path-b-closure-review.md`**: Final Path B closure and release-readiness review.
+
+### Review outcome
+
+Path B is complete as an incremental portability milestone.
+
+The repository remains an Arduino-compatible ADS1299 library, now with:
+
+- portable helper core;
+- neutral HAL;
+- Arduino HAL backend;
+- internal protocol object;
+- protocol-backed optional HAL path;
+- host-side tests;
+- Arduino example compile CI.
+
+### Release-readiness decision
+
+The branch is ready for review and CI-based merge consideration if GitHub Actions are green.
+
+It should not be described as a hardware-validated release until real ADS1299 smoke tests are completed.
+
+### Recommended next steps
+
+1. Push B10 documentation.
+2. Check host and Arduino CI results on GitHub.
+3. Run hardware smoke tests when an ADS1299 board is available.
+4. Decide whether to merge `portable-core-hal` toward the stable branch or prepare a release candidate.
