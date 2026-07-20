@@ -22,12 +22,15 @@ public:
   bool readReg(uint8_t addr, uint8_t& value);
   bool writeRegs(uint8_t startAddr, const uint8_t* data, size_t n);
   bool readRegs(uint8_t startAddr, uint8_t* data, size_t n);
+  bool readFrameRDATAC(uint8_t channelCount, uint32_t& status24, int32_t* channels, size_t capacity);
+  bool readDataOnDemand(uint8_t channelCount, uint32_t& status24, int32_t* channels, size_t capacity);
 
   bool isRDATACActive() const;
 
 private:
   void sendCommand_(uint8_t command);
   void waitDecode_();
+  bool readFrameBytes_(uint8_t channelCount, uint32_t& status24, int32_t* channels, size_t capacity);
 
   ADS1299_HAL* hal_;
   bool rdatacActive_ = false;

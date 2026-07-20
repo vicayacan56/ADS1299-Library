@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "ADS1299_Registers.h"
+#include "core/ADS1299_Core.h"
 #include "core/ADS1299_Protocol.h"
 
 static const int EVENT_CS_LOW = -1;
@@ -141,6 +142,72 @@ static void expectTransferSequence(ProtocolFakeHAL& hal, const uint8_t* data, si
     EXPECT_EQ(1, hal.csLowCount);
     EXPECT_EQ(1, hal.csHighCount);
     EXPECT_EQ(delayUs, hal.delayUsTotal);
+}
+
+static void append24(std::vector<uint8_t>& frame, int32_t value)
+{
+    const uint32_t raw = ((uint32_t)value) & 0x00FFFFFFUL;
+    frame.push_back((uint8_t)((raw >> 16) & 0xFF));
+    frame.push_back((uint8_t)((raw >> 8) & 0xFF));
+    frame.push_back((uint8_t)(raw & 0xFF));
+}
+
+static void queueFrame(ProtocolFakeHAL& hal,
+                       uint8_t channelCount,
+                       uint32_t status,
+                       const int32_t* samples)
+{
+    std::vector<uint8_t> frame;
+    frame.push_back((uint8_t)((status >> 16) & 0xFF));
+    frame.push_back((uint8_t)((status >> 8) & 0xFF));
+    frame.push_back((uint8_t)(status & 0xFF));
+    for (uint8_t i = 0; i < channelCount; ++i) {
+        append24(frame, samples[i]);
+    }
+    hal.queueRx(frame.data(), frame.size());
+}
+
+static void expectFrameRead(ProtocolFakeHAL& hal, size_t nbytes)
+{
+    EXPECT_EQ((int)(nbytes + 2), (int)hal.events.size());
+    if (hal.events.size() == nbytes + 2) {
+        EXPECT_EQ(EVENT_CS_LOW, hal.events[0]);
+        for (size_t i = 0; i < nbytes; ++i) {
+            EXPECT_EQ(EVENT_TRANSFER_BASE + ADS_CMD_NOP, hal.events[i + 1]);
+        }
+        EXPECT_EQ(EVENT_CS_HIGH, hal.events[nbytes + 1]);
+    }
+    EXPECT_EQ(1, hal.csLowCount);
+    EXPECT_EQ(1, hal.csHighCount);
+    EXPECT_EQ((int)nbytes, (int)hal.tx.size());
+    for (size_t i = 0; i < hal.tx.size(); ++i) {
+        EXPECT_EQ(ADS_CMD_NOP, hal.tx[i]);
+    }
+}
+
+static void expectRdataFrameRead(ProtocolFakeHAL& hal, size_t nbytes)
+{
+    EXPECT_EQ((int)(nbytes + 5), (int)hal.events.size());
+    if (hal.events.size() == nbytes + 5) {
+        EXPECT_EQ(EVENT_CS_LOW, hal.events[0]);
+        EXPECT_EQ(EVENT_TRANSFER_BASE + ADS_CMD_RDATA, hal.events[1]);
+        EXPECT_EQ(EVENT_CS_HIGH, hal.events[2]);
+        EXPECT_EQ(EVENT_CS_LOW, hal.events[3]);
+        for (size_t i = 0; i < nbytes; ++i) {
+            EXPECT_EQ(EVENT_TRANSFER_BASE + ADS_CMD_NOP, hal.events[i + 4]);
+        }
+        EXPECT_EQ(EVENT_CS_HIGH, hal.events[nbytes + 4]);
+    }
+    EXPECT_EQ(2, hal.csLowCount);
+    EXPECT_EQ(2, hal.csHighCount);
+    EXPECT_EQ((int)(nbytes + 1), (int)hal.tx.size());
+    if (!hal.tx.empty()) {
+        EXPECT_EQ(ADS_CMD_RDATA, hal.tx[0]);
+    }
+    for (size_t i = 1; i < hal.tx.size(); ++i) {
+        EXPECT_EQ(ADS_CMD_NOP, hal.tx[i]);
+    }
+    EXPECT_EQ(0, hal.delayUsTotal);
 }
 
 static void testProtocolSkeleton()
@@ -290,6 +357,109 @@ static void testRegisterAccessGuards()
     EXPECT_EQ(0, (int)hal.events.size());
 }
 
+static void testRdatacFrameTransfer()
+{
+    const int32_t samples[] = {
+        0x000001,
+        -1,
+        0x007F00,
+        -8388608,
+        0x000123,
+        -2,
+        0x001000,
+        8388607
+    };
+
+    for (uint8_t channels = ADS1299Core::MIN_CHANNELS; channels <= ADS1299Core::MAX_CHANNELS; channels += 2) {
+        ProtocolFakeHAL hal;
+        ADS1299_Protocol protocol(hal);
+        protocol.cmdRDATAC();
+        hal.clearEvents();
+
+        uint32_t status = 0;
+        int32_t out[ADS1299Core::MAX_CHANNELS] = {0};
+        queueFrame(hal, channels, 0xC0A55A, samples);
+        EXPECT_TRUE(protocol.readFrameRDATAC(channels, status, out, channels));
+        EXPECT_EQ(0xC0A55A, status);
+        for (uint8_t i = 0; i < channels; ++i) {
+            EXPECT_EQ(samples[i], out[i]);
+        }
+        expectFrameRead(hal, ADS1299Core::bytesPerFrame(channels));
+    }
+}
+
+static void testRdatacFrameGuards()
+{
+    ProtocolFakeHAL hal;
+    ADS1299_Protocol protocol(hal);
+    uint32_t status = 0;
+    int32_t out[ADS1299Core::MAX_CHANNELS] = {0};
+
+    EXPECT_TRUE(!protocol.readFrameRDATAC(ADS1299Core::MIN_CHANNELS, status, out, ADS1299Core::MIN_CHANNELS));
+    EXPECT_EQ(0, (int)hal.events.size());
+
+    protocol.cmdRDATAC();
+    hal.clearEvents();
+    EXPECT_TRUE(!protocol.readFrameRDATAC(ADS1299Core::MIN_CHANNELS, status, out, ADS1299Core::MIN_CHANNELS - 1));
+    EXPECT_TRUE(!protocol.readFrameRDATAC(0, status, out, ADS1299Core::MAX_CHANNELS));
+    EXPECT_TRUE(!protocol.readFrameRDATAC((uint8_t)(ADS1299Core::MAX_CHANNELS + 1), status, out, ADS1299Core::MAX_CHANNELS));
+    EXPECT_TRUE(!protocol.readFrameRDATAC(ADS1299Core::MIN_CHANNELS, status, nullptr, ADS1299Core::MIN_CHANNELS));
+    EXPECT_EQ(0, (int)hal.events.size());
+
+    const int32_t samples[] = {1, 2, 3, 4};
+    queueFrame(hal, ADS1299Core::MIN_CHANNELS, 0x00A55A, samples);
+    EXPECT_TRUE(!protocol.readFrameRDATAC(ADS1299Core::MIN_CHANNELS, status, out, ADS1299Core::MIN_CHANNELS));
+    EXPECT_EQ(0x00A55A, status);
+    expectFrameRead(hal, ADS1299Core::bytesPerFrame(ADS1299Core::MIN_CHANNELS));
+}
+
+static void testReadDataOnDemandTransfer()
+{
+    ProtocolFakeHAL hal;
+    ADS1299_Protocol protocol(hal);
+    const uint8_t channels = ADS1299Core::MAX_CHANNELS;
+    const int32_t samples[] = {
+        -1,
+        0,
+        1,
+        0x001234,
+        -0x001234,
+        0x007FFFFF,
+        -8388608,
+        0x000077
+    };
+    uint32_t status = 0;
+    int32_t out[ADS1299Core::MAX_CHANNELS] = {0};
+
+    hal.queueRx(0x00);
+    queueFrame(hal, channels, 0xC01234, samples);
+    EXPECT_TRUE(protocol.readDataOnDemand(channels, status, out, channels));
+    EXPECT_EQ(0xC01234, status);
+    for (uint8_t i = 0; i < channels; ++i) {
+        EXPECT_EQ(samples[i], out[i]);
+    }
+    expectRdataFrameRead(hal, ADS1299Core::bytesPerFrame(channels));
+}
+
+static void testReadDataOnDemandGuards()
+{
+    ProtocolFakeHAL hal;
+    ADS1299_Protocol protocol(hal);
+    uint32_t status = 0;
+    int32_t out[ADS1299Core::MAX_CHANNELS] = {0};
+
+    EXPECT_TRUE(!protocol.readDataOnDemand(ADS1299Core::MIN_CHANNELS, status, out, ADS1299Core::MIN_CHANNELS - 1));
+    EXPECT_TRUE(!protocol.readDataOnDemand(0, status, out, ADS1299Core::MAX_CHANNELS));
+    EXPECT_TRUE(!protocol.readDataOnDemand((uint8_t)(ADS1299Core::MAX_CHANNELS + 1), status, out, ADS1299Core::MAX_CHANNELS));
+    EXPECT_TRUE(!protocol.readDataOnDemand(ADS1299Core::MIN_CHANNELS, status, nullptr, ADS1299Core::MIN_CHANNELS));
+    EXPECT_EQ(0, (int)hal.events.size());
+
+    protocol.cmdRDATAC();
+    hal.clearEvents();
+    EXPECT_TRUE(!protocol.readDataOnDemand(ADS1299Core::MIN_CHANNELS, status, out, ADS1299Core::MIN_CHANNELS));
+    EXPECT_EQ(0, (int)hal.events.size());
+}
+
 int main()
 {
     testProtocolSkeleton();
@@ -298,6 +468,10 @@ int main()
     testSingleRegisterAccess();
     testBurstRegisterAccess();
     testRegisterAccessGuards();
+    testRdatacFrameTransfer();
+    testRdatacFrameGuards();
+    testReadDataOnDemandTransfer();
+    testReadDataOnDemandGuards();
 
     if (g_failures != 0) {
         printf("protocol tests failed: %d\n", g_failures);

@@ -131,6 +131,51 @@ bool ADS1299_Protocol::readRegs(uint8_t startAddr, uint8_t* data, size_t n)
   return true;
 }
 
+bool ADS1299_Protocol::readFrameBytes_(uint8_t channelCount, uint32_t& status24, int32_t* channels, size_t capacity)
+{
+  if (channelCount < ADS1299Core::MIN_CHANNELS ||
+      channelCount > ADS1299Core::MAX_CHANNELS ||
+      channels == nullptr ||
+      capacity < channelCount)
+    return false;
+
+  const size_t nbytes = ADS1299Core::bytesPerFrame(channelCount);
+  if (nbytes > ADS1299Core::BYTES_PER_FRAME_MAX)
+    return false;
+
+  uint8_t rxBuf[ADS1299Core::BYTES_PER_FRAME_MAX] = {0};
+  hal_->csLow();
+  for (size_t i = 0; i < nbytes; ++i) {
+    rxBuf[i] = hal_->spiTransfer(ADS_CMD_NOP);
+  }
+  hal_->csHigh();
+
+  return ADS1299Core::decodeFrame(rxBuf, channelCount, status24, channels, capacity);
+}
+
+bool ADS1299_Protocol::readFrameRDATAC(uint8_t channelCount, uint32_t& status24, int32_t* channels, size_t capacity)
+{
+  if (!rdatacActive_)
+    return false;
+
+  return readFrameBytes_(channelCount, status24, channels, capacity);
+}
+
+bool ADS1299_Protocol::readDataOnDemand(uint8_t channelCount, uint32_t& status24, int32_t* channels, size_t capacity)
+{
+  if (rdatacActive_)
+    return false;
+
+  if (channelCount < ADS1299Core::MIN_CHANNELS ||
+      channelCount > ADS1299Core::MAX_CHANNELS ||
+      channels == nullptr ||
+      capacity < channelCount)
+    return false;
+
+  cmdRDATA();
+  return readFrameBytes_(channelCount, status24, channels, capacity);
+}
+
 bool ADS1299_Protocol::isRDATACActive() const
 {
   return rdatacActive_;

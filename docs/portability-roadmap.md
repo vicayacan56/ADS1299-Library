@@ -632,3 +632,30 @@ Rules:
 ### Validation notes
 
 - Protocol tests verify exact RREG/WREG command bytes, `n - 1` count bytes, write payload order, NOP read count, returned read values, invalid range rejection, null pointer rejection, and register access blocking while RDATAC is active.
+
+## Phase B8.4 - Protocol frame transfer
+
+**Status:** Complete (unintegrated protocol behavior)
+
+### What was added
+
+- `ADS1299_Protocol::readFrameRDATAC()`
+- `ADS1299_Protocol::readDataOnDemand()`
+
+### What changed
+
+- The unintegrated protocol object can now transfer raw ADS1299 frames through `ADS1299_HAL` and decode them through the portable `ADS1299Core::decodeFrame()` helper.
+- `readFrameRDATAC()` only runs while protocol RDATAC state is active.
+- `readDataOnDemand()` emits `RDATA` first, then reads one frame with ADS1299 `NOP` transfers.
+
+### Compatibility notes
+
+- `ADS1299Plus` is not integrated with `ADS1299_Protocol` yet.
+- `ADS1299_SafeSPI` is unchanged.
+- Public API and examples are unchanged.
+- Existing acquisition behavior remains routed through the current driver path.
+
+### Validation notes
+
+- Protocol tests verify frame transfer for ADS1299-4, ADS1299-6, and ADS1299-8 frame sizes.
+- Tests verify exact `NOP` transfer counts, CS ordering, STATUS decoding, signed 24-bit sample decoding, invalid sync rejection, insufficient capacity rejection, invalid channel-count rejection, null pointer rejection, and RDATAC/RDATA state guards.
