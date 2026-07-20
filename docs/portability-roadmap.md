@@ -659,3 +659,29 @@ Rules:
 
 - Protocol tests verify frame transfer for ADS1299-4, ADS1299-6, and ADS1299-8 frame sizes.
 - Tests verify exact `NOP` transfer counts, CS ordering, STATUS decoding, signed 24-bit sample decoding, invalid sync rejection, insufficient capacity rejection, invalid channel-count rejection, null pointer rejection, and RDATAC/RDATA state guards.
+
+## Phase B8.5 - Protocol boundary review
+
+**Status:** Complete (review only)
+
+### What was added
+
+- **`docs/phase-b8-protocol-boundary-review.md`**: Review of the internal `ADS1299_Protocol` boundary after B8.1 through B8.4.
+
+### Review outcome
+
+B8 is complete as an unintegrated protocol-object phase.
+
+`ADS1299_Protocol` now has host-tested coverage for command dispatch, RDATAC state tracking, register access, burst register access, RDATAC frame reads, on-demand RDATA frame reads, invalid sync handling, buffer guards, and ADS1299-4/6/8 frame sizes.
+
+### Integration decision
+
+Production routing should not change in B8.5.
+
+The next phase should be:
+
+```text
+Phase B9.0 - HAL-backed protocol integration plan
+```
+
+B9.0 should decide how the optional HAL-backed `ADS1299Plus` path will use `ADS1299_Protocol` while keeping the classic `ADS1299_SafeSPI` path stable.

@@ -173,9 +173,17 @@ Tests must verify:
 - `readDataOnDemand()` is rejected while RDATAC is active;
 - `readFrameRDATAC()` is rejected unless RDATAC is active.
 
-### B8.5 - Integrate HAL-Backed ADS1299Plus Path
+### B8.5 - Protocol Boundary Review
 
-Only after protocol tests are strong, consider using `ADS1299_Protocol` inside the HAL-backed `ADS1299Plus` constructor path.
+B8.5 should review the protocol boundary after command, register, and frame behavior exist behind protocol tests.
+
+This review should decide whether the protocol object is ready to become an integration target.
+
+No production routing should change in B8.5.
+
+### B9.0 - HAL-Backed ADS1299Plus Integration Plan
+
+Only after the B8.5 review, consider using `ADS1299_Protocol` inside the HAL-backed `ADS1299Plus` constructor path.
 
 The classic `ADS1299_SafeSPI` path should remain untouched until HAL-backed behavior has proven equivalent.
 
@@ -217,4 +225,4 @@ The first implementation step should be:
 Phase B8.1 - Add unintegrated ADS1299_Protocol skeleton and tests
 ```
 
-No `ADS1299Plus` routing should change until the protocol object has independent tests for command and register byte sequences.
+No `ADS1299Plus` routing should change until the protocol object has independent tests for command, register, and frame byte sequences, and B9 has an explicit integration plan.
