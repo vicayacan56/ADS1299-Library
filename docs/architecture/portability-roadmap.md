@@ -1013,3 +1013,39 @@ Arduino example compilation should therefore be completed through one of these p
 ```text
 Phase C7 - Hardware smoke test
 ```
+
+## Phase C6.1 - Arduino CLI AVR compile fix
+
+**Status:** Complete (compile fix)
+
+### What changed
+
+- Added the missing standard `<stddef.h>` include to `src/core/ADS1299_Protocol.h`.
+
+### Reason
+
+Arduino AVR compilation builds `ADS1299_Protocol.cpp` in a context where `size_t` was not declared by the existing includes.
+
+Host-side tests had not exposed this because desktop builds received `size_t` through other include paths.
+
+### Validation
+
+Arduino CLI compilation now passes for:
+
+- `examples/RegisterDump`
+- `examples/BasicRead`
+- `examples/HalBasedRead`
+
+Host-side tests also pass:
+
+```text
+core tests passed
+protocol tests passed
+host tests passed
+```
+
+### Recommended next phase
+
+```text
+Phase C7 - Hardware smoke test
+```

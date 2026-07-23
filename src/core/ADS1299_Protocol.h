@@ -4,6 +4,7 @@
 #pragma once
 
 #include "../hal/ADS1299_HAL.h"
+#include <stddef.h>
 
 class ADS1299_Protocol {
 public:
