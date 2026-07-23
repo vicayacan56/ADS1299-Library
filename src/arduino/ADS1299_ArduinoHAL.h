@@ -4,10 +4,9 @@
  * Provides an Arduino-specific implementation of the ADS1299_HAL interface.
  * Uses Arduino GPIO, Arduino SPI, and Arduino delay functions.
  *
- * This is a conservative Phase B1 skeleton. The ADS1299Plus driver is not yet
- * refactored to use this HAL; it still uses Arduino APIs directly.
- *
- * Phase B1: HAL implementation only. Integration comes in Phase B2+.
+ * This backend is used by the optional ADS1299Plus HAL-backed constructor.
+ * The classic ADS1299_SafeSPI path remains the recommended default for
+ * ordinary Arduino sketches.
  */
 
 #ifndef ADS1299_ARDUINO_HAL_H
@@ -24,10 +23,10 @@
  * - Arduino GPIO functions (pinMode, digitalWrite, digitalRead)
  * - Arduino delay functions (delay, delayMicroseconds)
  *
- * Example usage (Phase B2+):
- *     ADS1299_ArduinoHAL hal(10, 9, 8, 7);  // CS, START, RESET, PWDN
+ * Example usage:
+ *     ADS1299_ArduinoHAL hal(10, 9, 8, 0xFF, 7);  // CS, START, RESET, PWDN, DRDY
  *     hal.begin();
- *     // later, pass HAL to ADS1299Plus core
+ *     // Pass HAL to ADS1299Plus when using the optional HAL-backed path.
  *     hal.end();
  */
 class ADS1299_ArduinoHAL : public ADS1299_HAL {
@@ -67,7 +66,7 @@ public:
 
     /**
      * Deinitialize the HAL layer.
-     * Currently a no-op for Arduino, but reserved for future use.
+     * Releases Arduino SPI resources.
      */
     void end() override;
 

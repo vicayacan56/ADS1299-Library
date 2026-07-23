@@ -3,10 +3,9 @@
  *
  * Implementation of the ADS1299_HAL interface using Arduino APIs.
  *
- * This is a conservative Phase B1 skeleton. The ADS1299Plus driver is not yet
- * refactored to use this HAL; it still uses Arduino APIs directly.
- *
- * Phase B1: HAL implementation only. Integration comes in Phase B2+.
+ * This backend is used by the optional ADS1299Plus HAL-backed constructor.
+ * The classic ADS1299_SafeSPI path remains the recommended default for
+ * ordinary Arduino sketches.
  */
 
 #include "ADS1299_ArduinoHAL.h"
@@ -72,29 +71,29 @@ void ADS1299_ArduinoHAL::begin()
     // Initialize SPI library; transaction-specific settings are applied by
     // beginTransaction().
     SPI.begin();
-    
+
     // Configure GPIO pins as outputs
     pinMode(m_csPin, OUTPUT);
     pinMode(m_startPin, OUTPUT);
     pinMode(m_resetPin, OUTPUT);
-    
+
     // Configure PWDN pin only if it's assigned (not PIN_UNUSED)
     if (m_pwdnPin != PIN_UNUSED) {
         pinMode(m_pwdnPin, OUTPUT);
     }
-    
+
     // Configure DRDY pin as input with pull-up
     pinMode(m_drdyPin, INPUT_PULLUP);
-    
+
     // Start with CS HIGH (inactive)
     csHigh();
-    
+
     // Start with START LOW (no conversion)
     setStart(false);
-    
+
     // Start with RESET HIGH (inactive; RESET is active-low)
     setReset(true);
-    
+
     // Start with PWDN HIGH (normal operation) if the pin is assigned
     if (m_pwdnPin != PIN_UNUSED) {
         setPwdn(true);
@@ -103,7 +102,6 @@ void ADS1299_ArduinoHAL::begin()
 
 /**
  * Deinitialize the HAL layer
- * Currently a no-op for Arduino
  */
 void ADS1299_ArduinoHAL::end()
 {

@@ -949,3 +949,31 @@ The main user path is:
 ```text
 Phase C5 - Source comment and metadata polish
 ```
+
+## Phase C5 - Source comment and metadata polish
+
+**Status:** Complete (comment and metadata review only)
+
+### What changed
+
+- Refreshed stale HAL comments in `src/hal/ADS1299_HAL.h`.
+- Refreshed stale Arduino HAL comments in `src/arduino/ADS1299_ArduinoHAL.h`.
+- Refreshed stale Arduino HAL comments in `src/arduino/ADS1299_ArduinoHAL.cpp`.
+- Removed the accidental leading blank line in `src/arduino/ADS1299_ArduinoHAL.h`.
+- Cleaned minor whitespace in touched comment-adjacent areas.
+
+### Metadata decision
+
+`library.properties` was reviewed and left unchanged.
+
+The branch should not bump the public version until hardware smoke tests and a deliberate release decision are complete.
+
+### Behavior decision
+
+C5 does not change API, register values, SPI behavior, examples, tests, or acquisition behavior.
+
+### Recommended next phase
+
+```text
+Phase C6 - Final validation pass
+```

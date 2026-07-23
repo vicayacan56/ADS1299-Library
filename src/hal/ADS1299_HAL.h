@@ -5,10 +5,8 @@
  * Platform-specific implementations (Arduino, STM32 HAL, ESP-IDF, etc.) must
  * provide a class derived from this interface.
  *
- * This is a conservative Phase B1 skeleton. The ADS1299Plus driver is not yet
- * refactored to use this HAL; it still uses Arduino APIs directly.
- *
- * Phase B1: HAL definition only. Integration comes in Phase B2+.
+ * ADS1299Plus keeps the classic Arduino/SafeSPI path as the default user path,
+ * and also supports an optional HAL-backed constructor for portability work.
  */
 
 #ifndef ADS1299_HAL_H
