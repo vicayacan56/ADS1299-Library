@@ -25,6 +25,7 @@ ADS1299Plus ads(adsSpi, adsPins);
 These documents explain the current internal design and release/readiness state:
 
 - [Portability Roadmap](architecture/portability-roadmap.md)
+- [Final Usability Audit](architecture/final-usability-audit.md)
 - [Path B Closure Review](architecture/phase-b10-path-b-closure-review.md)
 - [HAL Integration Review](architecture/phase-b9-hal-integration-review.md)
 - [Protocol Boundary Review](architecture/phase-b8-protocol-boundary-review.md)

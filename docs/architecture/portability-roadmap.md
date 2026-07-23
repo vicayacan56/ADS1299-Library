@@ -917,3 +917,35 @@ The README should stay focused on ordinary Arduino users. Maintainer notes, Path
 C3 keeps all documentation available while making the folder easier to navigate.
 
 The historical phase documents remain in the repository, but they are no longer mixed with user-facing guides at the top level of `docs/`.
+
+## Phase C4 - Final repository usability audit
+
+**Status:** Complete (review only)
+
+### What was added
+
+- **`docs/architecture/final-usability-audit.md`**: Critical repository usability audit after Path B and documentation cleanup.
+
+### Review outcome
+
+The repository is now coherent and navigable for Arduino users.
+
+The main user path is:
+
+1. Read `README.md`.
+2. Open `docs/user/user-guide.md`.
+3. Compile and run `examples/RegisterDump`.
+4. Move to `examples/BasicRead`.
+5. Use `examples/HalBasedRead` only when validating the optional HAL-backed path.
+
+### Remaining blockers before a polished release
+
+- Real ADS1299 hardware smoke tests are still required.
+- Some HAL source comments still describe earlier Phase B skeleton status and should be refreshed.
+- Release metadata should remain conservative until hardware validation is complete.
+
+### Recommended next phase
+
+```text
+Phase C5 - Source comment and metadata polish
+```
