@@ -4,13 +4,50 @@ You can validate several parts of ADS1299Plus without an ADS1299 board.
 
 ## Arduino sketch compilation
 
-Arduino IDE `Verify/Compile` does not require a connected board. Select a board such as Arduino Uno and compile:
+Arduino IDE `Verify/Compile` does not require a connected board.
+
+Use this flow on Windows:
+
+1. Close Arduino IDE.
+2. Make sure the library is installed in your Arduino sketchbook libraries folder.
+3. The usual Windows location is:
+
+   ```text
+   C:\Users\<YourUser>\Documents\Arduino\libraries\ADS1299Plus
+   ```
+
+4. The installed library folder must contain files such as:
+
+   ```text
+   library.properties
+   src\ADS1299Plus.h
+   examples\BasicRead\BasicRead.ino
+   ```
+
+5. If you are working directly from this repository, either copy the repository folder there or create a directory link named `ADS1299Plus`.
+6. Restart Arduino IDE after installing or updating the library.
+7. Select a board from `Tools > Board`, for example `Arduino Uno`.
+8. You do not need to select a port when only compiling without hardware.
+9. Open examples from `File > Examples > ADS1299Plus`, not by opening a loose `.ino` before the library is installed.
+10. Click `Verify` / `Compile`.
+
+Compile these examples:
 
 - `examples/BasicRead`
 - `examples/RegisterDump`
 - `examples/HalBasedRead`
 
 This validates preprocessing, compilation, linking, public headers, and Arduino API compatibility.
+
+If Arduino IDE reports:
+
+```text
+fatal error: ADS1299Plus.h: No such file or directory
+```
+
+then the library is not installed where Arduino IDE expects it, or Arduino IDE was not restarted after installation.
+
+If Arduino IDE finds an older copy of the library, remove or replace that old copy and restart Arduino IDE again.
 
 ## Host-side tests
 

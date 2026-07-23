@@ -977,3 +977,39 @@ C5 does not change API, register values, SPI behavior, examples, tests, or acqui
 ```text
 Phase C6 - Final validation pass
 ```
+
+## Phase C6 - Final validation pass
+
+**Status:** Complete (local host validation and Arduino IDE instructions)
+
+### What changed
+
+- Expanded `docs/user/testing-without-hardware.md` with step-by-step Arduino IDE verification instructions for compiling examples without a connected board.
+
+### Local validation
+
+Host-side tests were built and run locally with `g++`.
+
+Expected passing output:
+
+```text
+core tests passed
+protocol tests passed
+host tests passed
+```
+
+### Arduino validation decision
+
+`arduino-cli` was not available in the local shell used for this phase.
+
+Arduino example compilation should therefore be completed through one of these paths:
+
+- Arduino IDE `Verify/Compile` for `BasicRead`, `RegisterDump`, and `HalBasedRead`;
+- GitHub Actions after push;
+- a future local Arduino CLI installation.
+
+### Recommended next phase
+
+```text
+Phase C7 - Hardware smoke test
+```
