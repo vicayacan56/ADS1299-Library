@@ -5,8 +5,8 @@
  * Platform-specific implementations (Arduino, STM32 HAL, ESP-IDF, etc.) must
  * provide a class derived from this interface.
  *
- * ADS1299Plus keeps the classic Arduino/SafeSPI path as the default user path,
- * and also supports an optional HAL-backed constructor for portability work.
+ * The portable-core-hal branch exposes the ADS1299 driver through
+ * ADS1299_Device and backend implementations of this interface.
  */
 
 #ifndef ADS1299_HAL_H

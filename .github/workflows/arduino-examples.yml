@@ -28,11 +28,8 @@ jobs:
           mkdir -p "$HOME/Arduino/libraries"
           ln -s "$GITHUB_WORKSPACE" "$HOME/Arduino/libraries/ADS1299Plus"
 
-      - name: Compile BasicRead
-        run: arduino-cli compile --fqbn arduino:avr:uno examples/BasicRead
+      - name: Compile HalBasicRead
+        run: arduino-cli compile --fqbn arduino:avr:uno examples/HalBasicRead
 
-      - name: Compile RegisterDump
-        run: arduino-cli compile --fqbn arduino:avr:uno examples/RegisterDump
-
-      - name: Compile HalBasedRead
-        run: arduino-cli compile --fqbn arduino:avr:uno examples/HalBasedRead
+      - name: Compile HalRegisterDump
+        run: arduino-cli compile --fqbn arduino:avr:uno examples/HalRegisterDump

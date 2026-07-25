@@ -1,6 +1,6 @@
 # Arduino UNO Q EEG/MIDI Application
 
-ADS1299Plus is a generic Arduino-compatible library for the ADS1299-x family.
+ADS1299Plus on this branch is a HAL-first Arduino-compatible library for the ADS1299-x family.
 
 The Arduino UNO Q EEG/MIDI project is an advanced application built on top of this library.
 
@@ -19,8 +19,8 @@ These features are not required by the ADS1299Plus core library.
 
 For generic usage, see:
 
-- `examples/RegisterDump`
-- `examples/BasicRead`
+- `examples/HalRegisterDump`
+- `examples/HalBasicRead`
 
 ## Purpose of this document
 

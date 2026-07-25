@@ -1,21 +1,22 @@
 # ADS1299Plus User Guide
 
-This guide explains the recommended way to use ADS1299Plus from Arduino IDE.
+This guide explains the recommended way to use the HAL-only `portable-core-hal` branch from Arduino IDE or Arduino CLI.
 
-Use this guide if you want to connect an ADS1299 board, compile the examples, read registers, and start acquiring frames.
+Use the `main` branch if you need the stable classic Arduino/SafeSPI API.
 
 ## Recommended Starting Point
 
-Start with the classic Arduino/SafeSPI path.
-
-This is the default and most stable path for normal Arduino projects:
+This branch uses one public device path:
 
 ```cpp
-ADS1299_SafeSPI adsSpi(PIN_CS);
-ADS1299Plus ads(adsSpi, adsPins);
+#include <ADS1299_Device.h>
+#include <arduino/ADS1299_ArduinoHAL.h>
+
+ADS1299_ArduinoHAL adsHal(PIN_CS, PIN_START, PIN_RESET, PIN_PWDN, PIN_DRDY);
+ADS1299_Device ads(adsHal);
 ```
 
-The optional HAL path is useful for portability work, but most users do not need it for a first setup.
+Arduino is the first backend. The ADS1299 behavior is driven through the neutral HAL contract instead of direct Arduino SPI calls in the device facade.
 
 ## Supported ADS1299 Variants
 
@@ -27,10 +28,10 @@ ADS1299Plus supports:
 
 The library detects the channel count during `begin()` by reading the ADS1299 ID register.
 
-Always allocate channel arrays with `ADS1299Plus::MAX_CHANNELS`, then loop only over `ads.channelCount()`:
+Always allocate channel arrays with `ADS1299_Device::MAX_CHANNELS`, then loop only over `ads.channelCount()`:
 
 ```cpp
-int32_t channels[ADS1299Plus::MAX_CHANNELS] = {0};
+int32_t channels[ADS1299_Device::MAX_CHANNELS] = {0};
 
 for (uint8_t i = 0; i < ads.channelCount(); ++i) {
   Serial.println(channels[i]);
@@ -55,26 +56,27 @@ At minimum, the driver expects these ADS1299 signals:
 If PWDN is tied directly to VDD, use:
 
 ```cpp
-ADS1299Plus::ADS_PIN_UNUSED
+ADS1299_ArduinoHAL::PIN_UNUSED
 ```
 
 ## Bring-Up Flow
 
 For new hardware, use this order:
 
-1. Install the library in Arduino IDE.
-2. Compile `RegisterDump` without hardware errors.
+1. Install the library in Arduino IDE or make it visible to Arduino CLI.
+2. Compile `HalRegisterDump` without hardware errors.
 3. Connect the ADS1299 board.
-4. Run `RegisterDump` and confirm the device ID is valid.
-5. Run `BasicRead`.
-6. Confirm stable STATUS sync and frame output.
-7. Only then modify register settings or channel configuration.
+4. Upload `HalRegisterDump` and confirm the device ID is valid.
+5. Confirm the detected channel count is correct.
+6. Upload `HalBasicRead`.
+7. Confirm stable STATUS sync and frame output.
+8. Only then modify register settings or channel configuration.
 
-This keeps hardware bring-up simpler and makes wiring issues easier to isolate.
+This keeps hardware bring-up simple and makes wiring issues easier to isolate.
 
-## Example: RegisterDump
+## Example: HalRegisterDump
 
-Use `examples/RegisterDump` first.
+Use `examples/HalRegisterDump` first.
 
 It is meant to answer:
 
@@ -82,36 +84,25 @@ It is meant to answer:
 - Is the ADS1299 ID valid?
 - Are register reads working?
 - Is the detected channel count reasonable?
+- Do default register writes complete correctly?
 
-If `RegisterDump` cannot read the device ID, check wiring, power, SPI pins, CS, RESET, and PWDN before trying acquisition.
+If `HalRegisterDump` cannot read the device ID, check wiring, power, SPI pins, CS, RESET, and PWDN before trying acquisition.
 
-## Example: BasicRead
+## Example: HalBasicRead
 
-Use `examples/BasicRead` after `RegisterDump` works.
+Use `examples/HalBasicRead` after `HalRegisterDump` works.
 
 It uses:
 
-- the classic Arduino/SafeSPI path;
-- `configureDefaults()`;
-- `START`;
-- `RDATAC`;
-- `dataReady()`;
-- `readFrameRDATAC()`.
+- `ADS1299_Device`
+- `ADS1299_ArduinoHAL`
+- `configureDefaults()`
+- `startConversions()`
+- `cmdRDATAC()`
+- `dataReady()`
+- `readFrameRDATAC()`
 
-This is the normal acquisition reference example.
-
-## Example: HalBasedRead
-
-Use `examples/HalBasedRead` only after the classic path works.
-
-It exercises the optional Arduino HAL path:
-
-```cpp
-ADS1299_ArduinoHAL adsHal(PIN_CS, PIN_START, PIN_RESET, PIN_PWDN, PIN_DRDY);
-ADS1299Plus ads(adsHal, adsPins);
-```
-
-With real hardware, `HalBasedRead` should behave like `BasicRead`.
+This is the normal acquisition reference example for the HAL-only branch.
 
 ## Reading Frames
 
@@ -119,9 +110,9 @@ Use `readFrameRDATAC()` while RDATAC mode is active:
 
 ```cpp
 uint32_t status = 0;
-int32_t channels[ADS1299Plus::MAX_CHANNELS] = {0};
+int32_t channels[ADS1299_Device::MAX_CHANNELS] = {0};
 
-if (ads.readFrameRDATAC(status, channels, ADS1299Plus::MAX_CHANNELS)) {
+if (ads.readFrameRDATAC(status, channels, ADS1299_Device::MAX_CHANNELS)) {
   for (uint8_t i = 0; i < ads.channelCount(); ++i) {
     Serial.println(channels[i]);
   }
@@ -141,9 +132,9 @@ Use `readDataOnDemand()` only when RDATAC is not active:
 
 ```cpp
 uint32_t status = 0;
-int32_t channels[ADS1299Plus::MAX_CHANNELS] = {0};
+int32_t channels[ADS1299_Device::MAX_CHANNELS] = {0};
 
-if (ads.readDataOnDemand(status, channels, ADS1299Plus::MAX_CHANNELS)) {
+if (ads.readDataOnDemand(status, channels, ADS1299_Device::MAX_CHANNELS)) {
   // One frame was read using the ADS1299 RDATA command.
 }
 ```
@@ -162,7 +153,7 @@ ads.cmdSDATAC();
 uint8_t value = 0;
 ads.readReg(ADS_REG_CONFIG1, value);
 
-ads.writeReg(ADS_REG_CONFIG1, ADS1299Plus::kCFG1_Default);
+ads.writeReg(ADS_REG_CONFIG1, ADS1299_Device::kCFG1_Default);
 ```
 
 ## Default Configuration
@@ -185,10 +176,11 @@ These defaults are intentionally conservative.
 
 Check that the repository is installed as an Arduino library named `ADS1299Plus`.
 
-The include should be:
+The includes should be:
 
 ```cpp
-#include <ADS1299Plus.h>
+#include <ADS1299_Device.h>
+#include <arduino/ADS1299_ArduinoHAL.h>
 ```
 
 ### `begin()` fails
@@ -203,7 +195,7 @@ Check:
 - PWDN state;
 - selected Arduino board and SPI pins.
 
-Run `RegisterDump` before `BasicRead`.
+Run `HalRegisterDump` before `HalBasicRead`.
 
 ### Frames are not stable
 
@@ -228,7 +220,8 @@ ads.cmdSDATAC();
 
 You can verify compilation without a board:
 
-- Arduino IDE `Verify/Compile` for `BasicRead`, `RegisterDump`, and `HalBasedRead`.
+- Arduino IDE `Verify/Compile` for `HalRegisterDump` and `HalBasicRead`.
+- Arduino CLI compile checks for supported boards.
 - Host-side tests with desktop `g++`.
 
 See [Testing Without Hardware](testing-without-hardware.md).
@@ -237,11 +230,11 @@ See [Testing Without Hardware](testing-without-hardware.md).
 
 Before treating a setup as validated, check:
 
-- `RegisterDump` reads a valid ADS1299 ID.
-- `BasicRead` reads stable frames.
-- STATUS sync remains valid over time.
+- `HalRegisterDump` reads a valid ADS1299 ID.
 - `ads.channelCount()` matches the board variant.
-- `HalBasedRead` behaves like `BasicRead` if using HAL.
+- `HalBasicRead` reads stable frames.
+- STATUS sync remains valid over time.
+- Register access still works after stopping RDATAC.
 
 ## More Documentation
 

@@ -4,9 +4,8 @@
  * Provides an Arduino-specific implementation of the ADS1299_HAL interface.
  * Uses Arduino GPIO, Arduino SPI, and Arduino delay functions.
  *
- * This backend is used by the optional ADS1299Plus HAL-backed constructor.
- * The classic ADS1299_SafeSPI path remains the recommended default for
- * ordinary Arduino sketches.
+ * This backend is the Arduino implementation used by the HAL-only
+ * ADS1299_Device facade on the portable-core-hal branch.
  */
 
 #ifndef ADS1299_ARDUINO_HAL_H
@@ -26,7 +25,7 @@
  * Example usage:
  *     ADS1299_ArduinoHAL hal(10, 9, 8, 0xFF, 7);  // CS, START, RESET, PWDN, DRDY
  *     hal.begin();
- *     // Pass HAL to ADS1299Plus when using the optional HAL-backed path.
+ *     // Pass HAL to ADS1299_Device.
  *     hal.end();
  */
 class ADS1299_ArduinoHAL : public ADS1299_HAL {

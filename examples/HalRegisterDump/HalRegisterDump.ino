@@ -1,38 +1,27 @@
 #include <Arduino.h>
-#include <ADS1299Plus.h>
-#include <ADS1299_SafeSPI.h>
+#include <ADS1299_Device.h>
+#include <ADS1299_Registers.h>
+#include <arduino/ADS1299_ArduinoHAL.h>
 
 /*
-  RegisterDump
-  ------------
-  Generic Arduino-compatible diagnostic example.
+  HalRegisterDump
+  ---------------
+  HAL-only diagnostic example for ADS1299-4, ADS1299-6 or ADS1299.
 
-  It initializes the ADS1299, applies the conservative default configuration,
-  and prints the most relevant registers. It does not start RDATAC acquisition.
+  Arduino is used here only as the backend implementation of ADS1299_HAL.
+  The ADS1299 protocol path is:
 
-  Adjust the pins to match your board and wiring. SCK/MOSI/MISO are the
-  hardware SPI pins of the selected Arduino core. PWDN is normally tied to VDD;
-  in that case use ADS1299Plus::ADS_PIN_UNUSED.
+    ADS1299_Device -> ADS1299_Protocol -> ADS1299_ArduinoHAL
 */
 
 static constexpr uint8_t PIN_CS    = 10;
 static constexpr uint8_t PIN_DRDY  = 7;
 static constexpr uint8_t PIN_START = 9;
 static constexpr uint8_t PIN_RESET = 8;
-static constexpr uint8_t PIN_PWDN  = ADS1299Plus::ADS_PIN_UNUSED;
+static constexpr uint8_t PIN_PWDN  = ADS1299_ArduinoHAL::PIN_UNUSED;
 
-ADS1299_SafeSPI safeSpi(PIN_CS);
-ADS1299Plus::Pins adsPins = {
-  PIN_CS,
-  SCK,
-  MOSI,
-  MISO,
-  PIN_DRDY,
-  PIN_START,
-  PIN_RESET,
-  PIN_PWDN
-};
-ADS1299Plus ads(safeSpi, adsPins);
+ADS1299_ArduinoHAL adsHal(PIN_CS, PIN_START, PIN_RESET, PIN_PWDN, PIN_DRDY);
+ADS1299_Device ads(adsHal);
 
 static void printReg(const char* name, uint8_t addr) {
   uint8_t value = 0;
@@ -56,7 +45,7 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
 
-  Serial.println("ADS1299Plus RegisterDump");
+  Serial.println("ADS1299_Device HalRegisterDump");
 
   if (!ads.begin()) {
     Serial.println("ERROR: ads.begin() failed");

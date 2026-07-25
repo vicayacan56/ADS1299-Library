@@ -2,22 +2,23 @@
 
 This folder is divided by audience.
 
-If you only want to use the library from Arduino IDE, start with **User Documentation**.
+If you only want to use the library from Arduino IDE or Arduino CLI, start with **User Documentation**.
 
 ## User Documentation
 
-Start here:
-
 - [User Guide](user/user-guide.md): installation, wiring, examples, acquisition flow, and common problems.
-- [HAL Usage Guide](user/hal-usage-guide.md): classic Arduino path and optional Arduino HAL path.
+- [HAL Usage Guide](user/hal-usage-guide.md): how the HAL-only public API is used with the Arduino backend.
 - [Testing Without Hardware](user/testing-without-hardware.md): Arduino compile checks and host-side tests.
 - [UNO Q EEG MIDI Notes](user/uno-q-eeg-midi.md): project-specific notes.
 
-Recommended default Arduino usage:
+Recommended usage on this branch:
 
 ```cpp
-ADS1299_SafeSPI adsSpi(PIN_CS);
-ADS1299Plus ads(adsSpi, adsPins);
+#include <ADS1299_Device.h>
+#include <arduino/ADS1299_ArduinoHAL.h>
+
+ADS1299_ArduinoHAL adsHal(PIN_CS, PIN_START, PIN_RESET, PIN_PWDN, PIN_DRDY);
+ADS1299_Device ads(adsHal);
 ```
 
 ## Architecture and Maintainer Notes
@@ -48,13 +49,13 @@ These files explain why earlier decisions were made. They are not required readi
 
 ## Current Project Status
 
-ADS1299Plus is currently an Arduino-compatible library with:
+This branch is HAL-only at the public library surface:
 
-- classic Arduino/SafeSPI usage as the default path;
-- optional HAL-backed Arduino usage;
-- portable helper logic in `src/core`;
-- an internal protocol object for HAL-backed command/register/frame sequencing;
-- host-side tests;
-- GitHub Actions for host tests and Arduino example compilation.
+- `ADS1299_Device` is the public device facade.
+- `ADS1299_HAL` is the backend contract.
+- `ADS1299_ArduinoHAL` is the first validated backend.
+- Portable logic lives in `src/core`.
+- Arduino examples compile through the HAL-only path.
+- Host-side tests validate core logic, protocol sequencing, and device behavior.
 
-It should not yet be described as a fully portable ADS1299 library for all embedded platforms. STM32, ESP-IDF, Zephyr, and bare-metal backends are future possibilities, not current supported backends.
+The branch should not yet be described as having production-ready STM32, ESP-IDF, Zephyr, or bare-metal backends. Those are future backend implementations.

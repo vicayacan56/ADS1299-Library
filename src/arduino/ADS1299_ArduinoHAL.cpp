@@ -3,9 +3,8 @@
  *
  * Implementation of the ADS1299_HAL interface using Arduino APIs.
  *
- * This backend is used by the optional ADS1299Plus HAL-backed constructor.
- * The classic ADS1299_SafeSPI path remains the recommended default for
- * ordinary Arduino sketches.
+ * This backend is the Arduino implementation used by the HAL-only
+ * ADS1299_Device facade on the portable-core-hal branch.
  */
 
 #include "ADS1299_ArduinoHAL.h"

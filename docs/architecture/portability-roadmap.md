@@ -1199,6 +1199,56 @@ It does not remove `ADS1299Plus`, `ADS1299_SafeSPI`, or existing examples.
 Phase E5 - Add HAL-only examples
 ```
 
+## Phase E5 - HAL-only public branch cleanup
+
+**Status:** Complete
+
+### What changed
+
+- Added public convenience include `src/ADS1299_Device.h`.
+- Added `examples/HalRegisterDump`.
+- Added `examples/HalBasicRead`.
+- Updated Arduino example CI to compile the HAL-only examples.
+- Updated host-test CI to run only portable core, protocol, and device tests.
+- Removed the classic Arduino/SafeSPI source path from this branch.
+- Removed transitional examples that depended on the classic public path.
+- Updated user-facing documentation to present one public path for this branch.
+
+### Design outcome
+
+`portable-core-hal` is now a HAL-only branch at the public library surface:
+
+```text
+ADS1299_Device
+  -> ADS1299_Protocol
+  -> ADS1299_HAL
+  -> backend implementation
+```
+
+The first backend implementation is:
+
+```text
+ADS1299_ArduinoHAL
+```
+
+This keeps the portable branch conceptually clean while preserving Arduino usability.
+
+### Relationship to `main`
+
+The stable classic Arduino/SafeSPI release belongs on `main`.
+
+The portable branch should not keep `ADS1299Plus` and `ADS1299_SafeSPI` as a second public route, because that makes the branch look like two libraries in the same package.
+
+### Validation target
+
+Current validation should focus on:
+
+- host-side core/protocol/device tests;
+- Arduino CLI compilation of `HalRegisterDump`;
+- Arduino CLI compilation of `HalBasicRead`;
+- hardware smoke testing through `HalRegisterDump`;
+- hardware RDATAC smoke testing through `HalBasicRead`.
+
 ## Phase C6.1 - Arduino CLI AVR compile fix
 
 **Status:** Complete (compile fix)
@@ -1213,15 +1263,17 @@ Arduino AVR compilation builds `ADS1299_Protocol.cpp` in a context where `size_t
 
 Host-side tests had not exposed this because desktop builds received `size_t` through other include paths.
 
-### Validation
+### Validation at that point in the branch history
 
-Arduino CLI compilation now passes for:
+Before the HAL-only cleanup, Arduino CLI compilation passed for the transitional examples:
 
 - `examples/RegisterDump`
 - `examples/BasicRead`
 - `examples/HalBasedRead`
 
-Host-side tests also pass:
+The current HAL-only validation targets are listed in Phase E5.
+
+Host-side tests also passed at that point:
 
 ```text
 core tests passed
