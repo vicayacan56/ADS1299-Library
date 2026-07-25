@@ -1,11 +1,11 @@
-# Pruebas sin hardware
+# Testing without hardware
 
-Sin un ADS1299 conectado puedes validar la instalación y la compatibilidad de
-compilación, pero no la comunicación ni la adquisición.
+Without a connected ADS1299, you can validate installation and compilation
+compatibility, but not communication or acquisition.
 
-## Comprobaciones posibles
+## Available checks
 
-Desde la raíz del repositorio:
+From the repository root:
 
 ```powershell
 arduino-cli version
@@ -14,33 +14,32 @@ arduino-cli compile --fqbn arduino:avr:uno .\examples\RegisterDump
 arduino-cli compile --fqbn arduino:avr:uno .\examples\BasicRead
 ```
 
-Una compilación correcta confirma que:
+A successful compilation confirms that:
 
-- Arduino encuentra `ADS1299Plus.h`, `ADS1299_SafeSPI.h` y sus fuentes;
-- la estructura y los metadatos de la librería son válidos;
-- los ejemplos usan una API disponible;
-- el core seleccionado proporciona Arduino y SPI.
+- Arduino finds `ADS1299Plus.h`, `ADS1299_SafeSPI.h`, and their sources;
+- the library structure and metadata are valid;
+- the examples use an available API;
+- the selected core provides Arduino and SPI.
 
-También puedes inspeccionar que Arduino CLI ve una única instalación:
+You can also check that Arduino CLI sees only one installation:
 
 ```powershell
 arduino-cli lib list | Select-String ADS1299Plus
 ```
 
-## Lo que exige hardware real
+## Checks that require real hardware
 
-Necesitas un ADS1299 alimentado y cableado para validar:
+You need a powered and wired ADS1299 to validate:
 
-- respuesta SPI y lectura correcta del registro `ID`;
-- detección de 4, 6 u 8 canales;
-- lectura y escritura reales de registros;
-- transiciones de `DRDY`;
-- integridad y sincronización de frames `RDATAC` o `RDATA`;
-- ruido, estabilidad, tasa de muestreo y valores de canal;
-- RESET, START y PWDN;
-- referencia, BIAS, lead-off y entradas analógicas.
+- SPI communication and a correct `ID` register response;
+- detection of 4, 6, or 8 channels;
+- actual register reads and writes;
+- `DRDY` transitions;
+- `RDATAC` or `RDATA` frame integrity and synchronization;
+- noise, stability, sample rate, and channel values;
+- RESET, START, and PWDN behavior;
+- reference, BIAS, lead-off, and analog inputs.
 
-Compilar no demuestra que los pines, tensiones, reloj, aislamiento o señales
-analógicas sean correctos. El primer ensayo con placa debe ser
-`RegisterDump`; después usa `BasicRead`.
-
+Compilation does not prove that pins, voltages, clock, isolation, or analog
+signals are correct. Use `RegisterDump` for the first hardware test, followed
+by `BasicRead`.

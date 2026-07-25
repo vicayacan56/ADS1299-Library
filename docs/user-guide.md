@@ -1,26 +1,26 @@
-# Guía de usuario
+# User guide
 
-## Dispositivos compatibles
+## Supported devices
 
-ADS1299Plus controla las tres variantes de la familia:
+ADS1299Plus supports all three ADS1299 family variants:
 
-| Dispositivo | Canales detectados | Bytes por frame |
+| Device | Detected channels | Bytes per frame |
 |---|---:|---:|
 | ADS1299-4 | 4 | 15 |
 | ADS1299-6 | 6 | 21 |
 | ADS1299 | 8 | 27 |
 
-`begin()` lee el registro `ID` y selecciona automáticamente el número de
-canales. Reserva siempre un array de `ADS1299Plus::MAX_CHANNELS` y procesa solo
-los elementos indicados por `channelCount()`.
+`begin()` reads the `ID` register and automatically selects the channel count.
+Always allocate an `ADS1299Plus::MAX_CHANNELS` array and process only the
+elements reported by `channelCount()`.
 
-## Instalación
+## Installation
 
-En Arduino IDE, descarga el ZIP del repositorio y usa **Programa > Incluir
-librería > Añadir biblioteca .ZIP...**. Después abre
-**Archivo > Ejemplos > ADS1299Plus > RegisterDump**.
+In Arduino IDE, download the repository ZIP and select **Sketch > Include
+Library > Add .ZIP Library...**. Then open
+**File > Examples > ADS1299Plus > RegisterDump**.
 
-Con Arduino CLI puedes instalar el mismo ZIP y compilar los ejemplos:
+With Arduino CLI, install the same ZIP and compile the examples:
 
 ```powershell
 arduino-cli lib install --zip-path .\ADS1299-Library-main.zip
@@ -28,25 +28,24 @@ arduino-cli compile --fqbn arduino:avr:uno .\examples\RegisterDump
 arduino-cli compile --fqbn arduino:avr:uno .\examples\BasicRead
 ```
 
-Si copias la librería manualmente, `library.properties`, `src` y `examples`
-deben estar juntos en una sola carpeta dentro del directorio `libraries` de tu
-sketchbook.
+For a manual installation, `library.properties`, `src`, and `examples` must be
+together in one folder inside the sketchbook `libraries` directory.
 
-## Pines y cableado digital
+## Digital pins and wiring
 
-Define `CS`, `DRDY`, `START` y `RESET` como GPIO adecuados para tu placa. Usa
-los pines `SCK`, `MOSI` y `MISO` del periférico SPI hardware. `PWDN` puede ir a
-un GPIO o directamente a `VDD`.
+Assign suitable GPIOs for `CS`, `DRDY`, `START`, and `RESET`. Use the hardware
+SPI peripheral pins for `SCK`, `MOSI`, and `MISO`. `PWDN` may be connected to a
+GPIO or tied directly to `VDD`.
 
 ```cpp
 static constexpr uint8_t PIN_CS    = 10;
 static constexpr uint8_t PIN_DRDY  = 7;
 static constexpr uint8_t PIN_START = 9;
 static constexpr uint8_t PIN_RESET = 8;
-static constexpr uint8_t PIN_PWDN  = ADS1299Plus::ADS_PIN_UNUSED; // PWDN a VDD
+static constexpr uint8_t PIN_PWDN  = ADS1299Plus::ADS_PIN_UNUSED; // PWDN to VDD
 ```
 
-El orden de `ADS1299Plus::Pins` es:
+The `ADS1299Plus::Pins` field order is:
 
 ```cpp
 ADS1299Plus::Pins pins = {
@@ -54,41 +53,85 @@ ADS1299Plus::Pins pins = {
 };
 ```
 
-No asumas que una placa ADS1299 tolera los niveles de tensión de cualquier
-Arduino. Comprueba alimentación, masa, reloj, niveles lógicos y desacoplos
-contra el datasheet y el esquema de tu módulo.
+Do not assume that an ADS1299 board accepts the logic levels of every Arduino
+board. Check power, ground, clock, logic levels, and decoupling against the
+ADS1299 datasheet and your module schematic.
 
-## Puesta en marcha
+## Bring-up procedure
 
-1. Compila `RegisterDump` antes de conectar el ADC.
-2. Desconecta la alimentación y realiza el cableado.
-3. Enciende el sistema y abre el monitor serie a 115200 baudios.
-4. Confirma que `begin()` no falla, que el ID pertenece a un ADS1299 y que
-   `channelCount()` devuelve 4, 6 u 8.
-5. Revisa el volcado producido después de `configureDefaults()`.
-6. Compila y ejecuta `BasicRead`.
-7. Confirma que `DRDY` pasa a nivel bajo y se imprimen frames sin errores de
-   sincronización.
+1. Compile `RegisterDump` before connecting the ADC.
+2. Disconnect power and wire the hardware.
+3. Power the system and open the Serial Monitor at 115200 baud.
+4. Confirm that `begin()` succeeds, the ID belongs to an ADS1299, and
+   `channelCount()` returns 4, 6, or 8.
+5. Review the register dump produced after `configureDefaults()`.
+6. Compile and run `BasicRead`.
+7. Confirm that `DRDY` goes low and frames are printed without synchronization
+   errors.
 
-## Qué configura `configureDefaults()`
+## What `configureDefaults()` does
 
-La función detiene `RDATAC` y las conversiones antes de escribir registros.
-Después aplica una base conservadora:
+The function stops `RDATAC` and conversions before writing registers. It then
+applies a conservative baseline:
 
-- 250 muestras por segundo.
-- referencia interna habilitada y señal de prueba interna deshabilitada;
-- canales activos, entrada diferencial normal, ganancia 24 y `SRB2` apagado;
-- BIAS drive deshabilitado;
-- parámetros lead-off cargados, con comparadores lead-off deshabilitados;
-- GPIO del ADS1299 como entradas;
-- conversión continua.
+- 250 samples per second;
+- internal reference enabled and internal test signal disabled;
+- active channels, normal differential input, gain 24, and `SRB2` disabled;
+- BIAS drive disabled;
+- lead-off settings loaded, with lead-off comparators disabled;
+- ADS1299 GPIO pins configured as inputs;
+- continuous conversion mode.
 
-La función no inicia la adquisición. Si necesitas otra configuración, llama a
-los helpers correspondientes fuera de `RDATAC`.
+The function does not start acquisition. Apply any custom settings with the
+appropriate helpers while `RDATAC` is stopped.
 
-## Inicio y parada de adquisición
+## Customizing the configuration
 
-`BasicRead` mantiene `START` alto y activa la salida continua:
+The simplest safe order is:
+
+1. Call `begin()`.
+2. Call `configureDefaults()` to establish a known baseline.
+3. Apply custom settings such as sample rate and channel gain.
+4. Check the return value of every configuration call.
+5. Start conversions and then enable `RDATAC`.
+
+Custom settings must come after `configureDefaults()`, because calling
+`configureDefaults()` later restores the baseline and overwrites them. In
+`BasicRead`, insert the custom configuration immediately after this block:
+
+```cpp
+if (!ads.configureDefaults()) {
+  Serial.println("ERROR: configureDefaults() failed");
+  while (true) delay(1000);
+}
+
+// Add custom settings here, before pinStartHigh() and cmdRDATAC().
+```
+
+For example:
+
+```cpp
+if (!ads.setDataRate(ADS_DR_1k)) {
+  Serial.println("ERROR: setDataRate() failed");
+  while (true) delay(1000);
+}
+
+for (uint8_t ch = 1; ch <= ads.channelCount(); ++ch) {
+  if (!ads.setChannelGain(ch, ADS_GAIN_6)) {
+    Serial.println("ERROR: setChannelGain() failed");
+    while (true) delay(1000);
+  }
+}
+```
+
+This example changes all active channels to 1000 SPS and gain 6. Use named
+constants rather than raw numbers. See the
+[configuration guide](configuration-guide.md) for the complete list and
+examples for changing one channel or other device settings.
+
+## Starting and stopping acquisition
+
+`BasicRead` holds the `START` pin high and enables continuous output:
 
 ```cpp
 ads.pinStartHigh();
@@ -96,12 +139,12 @@ delay(10);
 ads.cmdRDATAC();
 ```
 
-Como alternativa, con el pin `START` bajo puedes usar `cmdStart()` para enviar
-el comando START. `cmdRDATAC()` activa el envío continuo de frames. Antes de
-leer o escribir registros, llama a `cmdSDATAC()`; para detener conversiones usa
-también `cmdStop()` o baja el pin `START`, según el método de inicio elegido.
+Alternatively, while the `START` pin is low, use `cmdStart()` to send the START
+command. `cmdRDATAC()` enables continuous frame output. Call `cmdSDATAC()`
+before reading or writing registers. To stop conversions, also call `cmdStop()`
+or drive the `START` pin low, depending on how conversion was started.
 
-Para una muestra bajo demanda, mantén `RDATAC` desactivado y usa:
+For an on-demand sample, keep `RDATAC` disabled and use:
 
 ```cpp
 uint32_t status;
@@ -111,20 +154,20 @@ bool ok = ads.readDataOnDemand(
 );
 ```
 
-## Interpretación de resultados
+## Interpreting results
 
-- **ID:** `begin()` valida los bits que identifican la familia ADS1299 y usa los
-  bits de variante para detectar 4, 6 u 8 canales. El byte completo puede
-  incluir bits de revisión; no compruebes solo un valor hexadecimal fijo.
-- **`channelCount()`:** número real de canales detectados.
-- **`bytesPerFrame()`:** 3 bytes de `STATUS` más 3 bytes por canal.
-- **`STATUS`:** palabra de 24 bits. Su nibble superior debe ser `0xC`; el resto
-  contiene estados lead-off y GPIO. Un patrón de sincronización incorrecto hace
-  que la función de lectura devuelva `false`.
-- **Canales:** cada muestra de 24 bits se extiende con signo y se entrega como
-  `int32_t`. Es un código ADC sin convertir a voltios. Recorre únicamente
-  `channelCount()` posiciones.
+- **ID:** `begin()` validates the bits that identify the ADS1299 family and
+  uses the variant bits to detect 4, 6, or 8 channels. The complete byte may
+  contain revision bits, so do not compare it only with one fixed hexadecimal
+  value.
+- **`channelCount()`:** the detected physical channel count.
+- **`bytesPerFrame()`:** 3 `STATUS` bytes plus 3 bytes per channel.
+- **`STATUS`:** a 24-bit word. Its upper nibble must be `0xC`; the remaining
+  bits contain lead-off and GPIO status. An invalid synchronization pattern
+  makes the frame-reading function return `false`.
+- **Channels:** every signed 24-bit sample is sign-extended and returned as an
+  `int32_t`. This is a raw ADC code, not a voltage. Process only
+  `channelCount()` entries.
 
-Consulta la [referencia de API](api-reference.md) para configurar registros,
-canales, referencia, BIAS y lead-off.
-
+See the [API reference](api-reference.md) for register, channel, reference,
+BIAS, and lead-off configuration.

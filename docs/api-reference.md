@@ -1,54 +1,53 @@
-# Referencia de API
+# API reference
 
-Incluye la librería con:
+Include the library with:
 
 ```cpp
 #include <ADS1299Plus.h>
 #include <ADS1299_SafeSPI.h>
 ```
 
-## Clases y archivos
+## Classes and files
 
-`ADS1299Plus` representa el ADC y contiene la API de inicio, configuración y
-adquisición. `ADS1299_SafeSPI` adapta esa API al SPI de Arduino, controla `CS` y
-usa 2 MHz, MSB primero y modo SPI 1 de forma predeterminada.
+`ADS1299Plus` represents the ADC and provides the startup, configuration, and
+acquisition API. `ADS1299_SafeSPI` adapts that API to Arduino SPI, controls
+`CS`, and uses 2 MHz, MSB first, and SPI mode 1 by default.
 
-`ADS1299_Registers.h` declara opcodes, direcciones, máscaras, ganancias, modos
-de entrada y constantes de configuración. Se incluye desde `ADS1299Plus.h`;
-puedes incluirlo directamente si necesitas sus nombres al construir valores de
-registro.
+`ADS1299_Registers.h` declares opcodes, addresses, masks, gains, input modes,
+and configuration constants. It is included by `ADS1299Plus.h`; include it
+directly when you need its names to build register values.
 
-## Inicio e información
+## Startup and device information
 
-- `begin()`: configura GPIO y SPI, reinicia el ADC, sale de `RDATAC`, detiene
-  conversiones, valida `ID` y detecta la variante. No aplica los defaults ni
-  inicia adquisición.
-- `configureDefaults()`: detiene adquisición y escribe la configuración base
-  descrita en la [guía de usuario](user-guide.md).
-- `end()`: detiene conversiones, sale de `RDATAC` y finaliza el transporte SPI.
-- `readDeviceID(id)`: lee el registro `ID`.
-- `channelCount()`: devuelve 4, 6 u 8 después de un `begin()` correcto.
-- `bytesPerFrame()`: devuelve `3 + 3 * channelCount()`.
-- `dataReady()`: devuelve `true` cuando `DRDY` está bajo.
+- `begin()`: configures GPIO and SPI, resets the ADC, exits `RDATAC`, stops
+  conversions, validates the `ID`, and detects the variant. It does not apply
+  the default configuration or start acquisition.
+- `configureDefaults()`: stops acquisition and writes the baseline described in
+  the [user guide](user-guide.md).
+- `end()`: stops conversions, exits `RDATAC`, and ends the SPI transport.
+- `readDeviceID(id)`: reads the `ID` register.
+- `channelCount()`: returns 4, 6, or 8 after a successful `begin()`.
+- `bytesPerFrame()`: returns `3 + 3 * channelCount()`.
+- `dataReady()`: returns `true` while `DRDY` is low.
 
-## Comandos del ADS1299
+## ADS1299 commands
 
-- `cmdWakeup()` / `cmdStandby()`: sale de o entra en standby.
-- `cmdReset()`: envía RESET por SPI.
-- `cmdStart()` / `cmdStop()`: inicia o detiene conversiones mediante comando.
-- `cmdRDATAC()`: activa la lectura continua y el estado interno correspondiente.
-- `cmdSDATAC()`: detiene la lectura continua; úsalo antes de acceder a registros.
-- `cmdRDATA()`: solicita un frame. Normalmente se usa indirectamente mediante
+- `cmdWakeup()` / `cmdStandby()`: leave or enter standby.
+- `cmdReset()`: sends the SPI RESET command.
+- `cmdStart()` / `cmdStop()`: start or stop conversions by command.
+- `cmdRDATAC()`: enables continuous reading and updates the internal state.
+- `cmdSDATAC()`: stops continuous reading; call it before register access.
+- `cmdRDATA()`: requests one frame. It is normally used indirectly through
   `readDataOnDemand()`.
 
-También están disponibles `pinStartHigh()`, `pinStartLow()`,
-`pinResetPulse()` y `pinPowerDown()`. Esta última no hace nada cuando `PWDN`
-se declaró como `ADS_PIN_UNUSED`.
+Pin helpers are also available: `pinStartHigh()`, `pinStartLow()`,
+`pinResetPulse()`, and `pinPowerDown()`. The last function does nothing when
+`PWDN` was declared as `ADS_PIN_UNUSED`.
 
-## Registros
+## Register access
 
-Estas funciones devuelven `false` si el rango no es válido o si `RDATAC` está
-activo:
+These functions return `false` if the address range is invalid or `RDATAC` is
+active:
 
 ```cpp
 bool writeReg(uint8_t addr, uint8_t value);
@@ -57,36 +56,39 @@ bool writeRegs(uint8_t startAddr, const uint8_t* data, size_t n);
 bool readRegs(uint8_t startAddr, uint8_t* data, size_t n);
 ```
 
-Ejemplo:
+Example:
 
 ```cpp
 ads.cmdSDATAC();
 uint8_t config1;
 if (ads.readReg(ADS_REG_CONFIG1, config1)) {
-  // Usar config1.
+  // Use config1.
 }
 ```
 
-## Configuración
+## Configuration
 
-- Reloj y tasa: `setDataRate()`, `setClockOut()` y
+The [configuration guide](configuration-guide.md) provides complete examples,
+available constants, and the correct order for applying these functions.
+
+- Clock and data rate: `setDataRate()`, `setClockOut()`, and
   `setMultipleReadbackMode()`.
-- Canal: `setChannel()`, `powerDownChannel()`, `setChannelGain()`,
-  `setChannelMux()` y `setSRB2()`.
-- Referencia común: `enableSRB1()`.
-- Referencia y BIAS: `useInternalRef()`, `useBiasInternalRef()`,
-  `enableBiasBuffer()`, `routeBiasSense()` y `enableBiasMeasure()`.
-- Derivación BIAS: `setBiasDeriveP()` y `setBiasDeriveN()`.
+- Channels: `setChannel()`, `powerDownChannel()`, `setChannelGain()`,
+  `setChannelMux()`, and `setSRB2()`.
+- Common reference: `enableSRB1()`.
+- Reference and BIAS: `useInternalRef()`, `useBiasInternalRef()`,
+  `enableBiasBuffer()`, `routeBiasSense()`, and `enableBiasMeasure()`.
+- BIAS derivation: `setBiasDeriveP()` and `setBiasDeriveN()`.
 - Lead-off: `configureLeadOff()`, `enableLeadOffSenseP()`,
-  `enableLeadOffSenseN()`, `setLeadOffFlip()` y
+  `enableLeadOffSenseN()`, `setLeadOffFlip()`, and
   `enableLoffComparators()`.
-- Conversión: `setSingleShot()`.
+- Conversion mode: `setSingleShot()`.
 
-Los números de canal válidos van de 1 a `channelCount()`. Las funciones que
-reciben máscaras ignoran los bits de canales que no existen en la variante
-detectada. Configura registros solo con `RDATAC` detenido.
+Valid channel numbers range from 1 through `channelCount()`. Functions that
+accept channel masks ignore bits for channels that do not exist on the
+detected variant. Configure registers only while `RDATAC` is stopped.
 
-## Adquisición
+## Acquisition
 
 ```cpp
 bool readFrameRDATAC(
@@ -97,12 +99,12 @@ bool readDataOnDemand(
 );
 ```
 
-`readFrameRDATAC()` exige `RDATAC` activo. `readDataOnDemand()` exige `RDATAC`
-inactivo y envía `RDATA`. Ambas requieren una capacidad igual o superior a
-`channelCount()`, decodifican los canales a `int32_t` y devuelven `false` si el
-patrón de sincronización de `STATUS` no es válido.
+`readFrameRDATAC()` requires active `RDATAC`. `readDataOnDemand()` requires
+inactive `RDATAC` and sends `RDATA`. Both require a capacity equal to or
+greater than `channelCount()`, decode channels to `int32_t`, and return `false`
+if the `STATUS` synchronization pattern is invalid.
 
-Con un array de ocho posiciones también puedes usar las sobrecargas sin
+With an eight-element array, you can also use the overloads without
 `capacity`:
 
 ```cpp
@@ -111,7 +113,6 @@ uint32_t status;
 bool ok = ads.readFrameRDATAC(status, channels);
 ```
 
-Helpers de `STATUS`: `statusHasSync()`, `statusLoffP()`, `statusLoffN()` y
-`statusGPIO()`. `unpack24()` convierte tres bytes MSB-first con signo a
+`STATUS` helpers: `statusHasSync()`, `statusLoffP()`, `statusLoffN()`, and
+`statusGPIO()`. `unpack24()` converts three signed MSB-first bytes to
 `int32_t`.
-

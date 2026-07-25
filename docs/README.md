@@ -1,16 +1,17 @@
-# Documentación de ADS1299Plus
+# ADS1299Plus documentation
 
-Empieza por la [guía de usuario](user-guide.md). Contiene el cableado, el orden
-de pruebas y la interpretación de las lecturas.
+Start with the [user guide](user-guide.md). It covers wiring, the recommended
+test sequence, and how to interpret readings.
 
-- [Guía de usuario](user-guide.md): instalación, cableado y primera adquisición.
-- [Referencia de API](api-reference.md): funciones públicas y reglas de uso.
-- [Pruebas sin hardware](testing-without-hardware.md): qué se puede validar sin
-  conectar un ADS1299.
-- [Solución de problemas](troubleshooting.md): fallos habituales de instalación,
-  SPI, ID y adquisición.
+- [User guide](user-guide.md): installation, wiring, and first acquisition.
+- [Configuration guide](configuration-guide.md): sample rate, gain, channels,
+  MUX, SRB, reference, BIAS, lead-off, and runtime changes.
+- [API reference](api-reference.md): public functions and usage rules.
+- [Testing without hardware](testing-without-hardware.md): checks that do not
+  require a connected ADS1299.
+- [Troubleshooting](troubleshooting.md): common installation, SPI, ID, and
+  acquisition problems.
 
-Los ejemplos listos para compilar están en
-[`examples/RegisterDump`](../examples/RegisterDump/RegisterDump.ino) y
+Ready-to-compile examples are available in
+[`examples/RegisterDump`](../examples/RegisterDump/RegisterDump.ino) and
 [`examples/BasicRead`](../examples/BasicRead/BasicRead.ino).
-

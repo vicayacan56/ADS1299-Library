@@ -1,33 +1,33 @@
 # ADS1299Plus
 
-Librería Arduino para controlar por SPI los ADC de biopotenciales de 24 bits
-Texas Instruments **ADS1299-4**, **ADS1299-6** y **ADS1299** (8 canales).
+Arduino library for controlling the Texas Instruments **ADS1299-4**,
+**ADS1299-6**, and **ADS1299** (8-channel) 24-bit biopotential ADCs over SPI.
 
-La librería detecta la variante conectada, permite leer y escribir registros,
-configurar canales y adquirir frames en modo continuo (`RDATAC`) o bajo demanda
-(`RDATA`).
+The library detects the connected variant, provides register and channel
+configuration, and acquires frames in continuous (`RDATAC`) or on-demand
+(`RDATA`) mode.
 
-> **Seguridad:** el ADS1299 se usa habitualmente en equipos conectados a
-> electrodos. No conectes una persona a un montaje alimentado o enlazado a
-> equipos sin el aislamiento y las protecciones exigidos para aplicaciones
-> biomédicas. Esta librería no convierte un prototipo en un dispositivo médico.
+> **Safety:** the ADS1299 is commonly used in equipment connected to
+> electrodes. Never connect a person to a setup that is powered by or linked to
+> non-isolated equipment without the isolation and protection required for
+> biomedical applications. This library does not make a prototype a medical
+> device.
 
-## Instalación
+## Installation
 
 ### Arduino IDE
 
-1. Descarga el ZIP de este repositorio desde GitHub.
-2. En Arduino IDE abre **Programa > Incluir librería > Añadir biblioteca
-   .ZIP...**.
-3. Selecciona el ZIP y reinicia el IDE si no aparecen los ejemplos.
-4. Abre **Archivo > Ejemplos > ADS1299Plus > RegisterDump**.
+1. Download this repository as a ZIP file from GitHub.
+2. In Arduino IDE, select **Sketch > Include Library > Add .ZIP Library...**.
+3. Select the ZIP file. Restart the IDE if the examples do not appear.
+4. Open **File > Examples > ADS1299Plus > RegisterDump**.
 
-Si instalas manualmente, la carpeta que contiene `library.properties` debe
-quedar dentro de `Documentos\Arduino\libraries\ADS1299Plus`.
+For a manual installation, place the folder containing `library.properties`
+inside `Documents\Arduino\libraries\ADS1299Plus`.
 
 ### Arduino CLI
 
-Desde PowerShell, con el ZIP descargado:
+From PowerShell, with the ZIP file already downloaded:
 
 ```powershell
 arduino-cli lib install --zip-path .\ADS1299-Library-main.zip
@@ -37,48 +37,80 @@ arduino-cli compile --fqbn arduino:avr:uno .\examples\RegisterDump
 arduino-cli compile --fqbn arduino:avr:uno .\examples\BasicRead
 ```
 
-Los dos últimos comandos se ejecutan desde una copia del repositorio. Ajusta el
-FQBN y los pines para tu placa.
+Run the last two commands from a repository checkout. Change the FQBN and pin
+assignments for your board.
 
-## Cableado
+## Wiring
 
-| Señal ADS1299 | Dirección | Conexión |
+| ADS1299 signal | Direction | Connection |
 |---|---|---|
-| `CS` | MCU → ADS1299 | GPIO seleccionado como chip select |
-| `SCLK` | MCU → ADS1299 | Pin SCK del SPI hardware |
-| `DIN` / `MOSI` | MCU → ADS1299 | Pin MOSI del SPI hardware |
-| `DOUT` / `MISO` | ADS1299 → MCU | Pin MISO del SPI hardware |
-| `DRDY` | ADS1299 → MCU | GPIO de entrada; activo en bajo |
-| `START` | MCU → ADS1299 | GPIO de salida |
-| `RESET` | MCU → ADS1299 | GPIO de salida; activo en bajo |
-| `PWDN` | MCU → ADS1299 | GPIO opcional; activo en bajo |
+| `CS` | MCU → ADS1299 | GPIO selected as chip select |
+| `SCLK` | MCU → ADS1299 | Hardware SPI SCK pin |
+| `DIN` / `MOSI` | MCU → ADS1299 | Hardware SPI MOSI pin |
+| `DOUT` / `MISO` | ADS1299 → MCU | Hardware SPI MISO pin |
+| `DRDY` | ADS1299 → MCU | Input GPIO; active low |
+| `START` | MCU → ADS1299 | Output GPIO |
+| `RESET` | MCU → ADS1299 | Output GPIO; active low |
+| `PWDN` | MCU → ADS1299 | Optional output GPIO; active low |
 
-Une también las masas digitales y verifica que los niveles lógicos, fuentes,
-reloj y desacoplos cumplen el datasheet y el diseño de tu placa ADS1299.
-`SCK`, `MOSI` y `MISO` son los pines SPI hardware de la placa Arduino.
+Connect the digital grounds and verify that the logic levels, power supplies,
+clock, and decoupling meet the ADS1299 datasheet and your board design. `SCK`,
+`MOSI`, and `MISO` are the hardware SPI pins of the selected Arduino board.
 
-Si `PWDN` está conectado directamente a `VDD`, no lo configures como GPIO:
+If `PWDN` is tied directly to `VDD`, do not configure it as a GPIO:
 
 ```cpp
 static constexpr uint8_t PIN_PWDN = ADS1299Plus::ADS_PIN_UNUSED;
 ```
 
-## Primer arranque recomendado
+## Recommended first run
 
-1. Instala la librería.
-2. Compila `RegisterDump`.
-3. Conecta el hardware con la alimentación desconectada.
-4. Ejecuta `RegisterDump` y abre el monitor serie a 115200 baudios.
-5. Confirma que se lee un ID ADS1299 y que aparecen 4, 6 u 8 canales.
-6. Ajusta los mismos pines en `BasicRead`, compílalo y ejecútalo.
-7. Confirma que `DRDY` genera lecturas y que aparecen frames `RDATAC` estables.
+1. Install the library.
+2. Compile `RegisterDump`.
+3. Wire the hardware while power is disconnected.
+4. Run `RegisterDump` and open the Serial Monitor at 115200 baud.
+5. Confirm that an ADS1299 ID is read and 4, 6, or 8 channels are detected.
+6. Set the same pins in `BasicRead`, compile it, and run it.
+7. Confirm that `DRDY` produces readings and stable `RDATAC` frames appear.
 
-`RegisterDump` inicializa el chip, aplica la configuración por defecto y muestra
-los registros principales sin iniciar adquisición continua. `BasicRead`
-configura el chip, inicia `RDATAC` e imprime `STATUS` y los canales como
-valores `int32_t`.
+`RegisterDump` initializes the device, applies the default configuration, and
+prints the main registers without starting continuous acquisition. `BasicRead`
+configures the device, starts `RDATAC`, and prints `STATUS` and the channels as
+`int32_t` values.
 
-## Uso mínimo
+## Changing sample rate and gain
+
+Apply custom settings **after** `configureDefaults()` and **before** starting
+`RDATAC`. For example, this selects 500 SPS and gain 12 on every detected
+channel:
+
+```cpp
+if (!ads.configureDefaults()) {
+  while (true) {}
+}
+
+if (!ads.setDataRate(ADS_DR_500)) {
+  while (true) {}
+}
+
+for (uint8_t ch = 1; ch <= ads.channelCount(); ++ch) {
+  if (!ads.setChannelGain(ch, ADS_GAIN_12)) {
+    while (true) {}
+  }
+}
+
+ads.pinStartHigh();
+delay(10);
+ads.cmdRDATAC();
+```
+
+Do not pass a number such as `500` or `12` directly. Use the named constants
+`ADS_DR_500` and `ADS_GAIN_12`. See the
+[configuration guide](docs/configuration-guide.md) for every supported sample
+rate and gain, per-channel settings, MUX, SRB, reference, BIAS, lead-off, and
+safe runtime reconfiguration.
+
+## Minimal example
 
 ```cpp
 #include <ADS1299Plus.h>
@@ -105,26 +137,27 @@ void loop() {
   int32_t channels[ADS1299Plus::MAX_CHANNELS];
   if (ads.readFrameRDATAC(status, channels,
                           ADS1299Plus::MAX_CHANNELS)) {
-    // Procesar solo channels[0] ... channels[ads.channelCount() - 1].
+    // Process channels[0] ... channels[ads.channelCount() - 1] only.
   }
 }
 ```
 
-## Archivos principales
+## Main files
 
-- `src/ADS1299Plus.h` y `.cpp`: API del dispositivo, secuencia de inicio,
-  registros, configuración de canales y adquisición.
-- `src/ADS1299_SafeSPI.h` y `.cpp`: transporte Arduino SPI, control de `CS`,
-  modo SPI 1 y temporización de comandos.
-- `src/ADS1299_Registers.h`: direcciones, comandos, máscaras y constantes del
-  mapa de registros.
-- `examples/RegisterDump`: diagnóstico inicial e inspección de registros.
-- `examples/BasicRead`: adquisición continua mínima con `RDATAC`.
+- `src/ADS1299Plus.h` and `.cpp`: device API, startup sequence, register access,
+  channel configuration, and acquisition.
+- `src/ADS1299_SafeSPI.h` and `.cpp`: Arduino SPI transport, `CS` control,
+  SPI mode 1, and command timing.
+- `src/ADS1299_Registers.h`: commands, addresses, masks, and register-map
+  constants.
+- `examples/RegisterDump`: initial diagnostics and register inspection.
+- `examples/BasicRead`: minimal continuous acquisition using `RDATAC`.
 
-## Documentación
+## Documentation
 
-- [Índice](docs/README.md)
-- [Guía de usuario](docs/user-guide.md)
-- [Referencia de API](docs/api-reference.md)
-- [Pruebas sin hardware](docs/testing-without-hardware.md)
-- [Solución de problemas](docs/troubleshooting.md)
+- [Documentation index](docs/README.md)
+- [User guide](docs/user-guide.md)
+- [Configuration guide](docs/configuration-guide.md)
+- [API reference](docs/api-reference.md)
+- [Testing without hardware](docs/testing-without-hardware.md)
+- [Troubleshooting](docs/troubleshooting.md)
