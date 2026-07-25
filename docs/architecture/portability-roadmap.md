@@ -1014,6 +1014,49 @@ Arduino example compilation should therefore be completed through one of these p
 Phase C7 - Hardware smoke test
 ```
 
+## Phase C7 - Hardware smoke test
+
+**Status:** Complete for Arduino UNO Q + ADS1299-4
+
+### What was added
+
+- **`docs/architecture/phase-c7-hardware-smoke-test.md`**: Real-hardware smoke test notes for Arduino UNO Q and ADS1299-4.
+
+### Validation outcome
+
+The following examples compiled, uploaded, and ran on Arduino UNO Q using `arduino:zephyr:unoq`:
+
+- `examples/RegisterDump`
+- `examples/BasicRead`
+- `examples/HalBasedRead`
+
+Observed hardware results:
+
+- ADS1299 ID read as `0x3C`.
+- Device detected as 4-channel ADS1299 variant.
+- Register reads and `configureDefaults()` completed.
+- Classic Arduino/SafeSPI RDATAC acquisition produced frames.
+- Optional Arduino HAL-backed RDATAC acquisition produced frames.
+
+### HAL decision
+
+The optional Arduino HAL-backed path is now hardware-smoke-tested on UNO Q.
+
+This validates `ADS1299_ArduinoHAL` as a working reference backend for the current HAL contract.
+
+### Remaining release work
+
+- Longer acquisition run.
+- Controlled input or known test signal validation.
+- Release metadata and release notes.
+- Optional validation on another Arduino-compatible board.
+
+### Recommended next phase
+
+```text
+Phase C8 - Release preparation
+```
+
 ## Phase C6.1 - Arduino CLI AVR compile fix
 
 **Status:** Complete (compile fix)
