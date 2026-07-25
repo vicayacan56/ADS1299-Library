@@ -1,0 +1,60 @@
+name: Arduino CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Arduino Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check Arduino Library Manager compliance
+        uses: arduino/arduino-lint-action@v3
+        with:
+          compliance: specification
+          library-manager: submit
+          project-type: library
+
+  compile:
+    name: ${{ matrix.board }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - board: Arduino Uno
+            core: arduino:avr
+            fqbn: arduino:avr:uno
+          - board: Arduino UNO Q
+            core: arduino:zephyr
+            fqbn: arduino:zephyr:unoq
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+        with:
+          version: 1.x
+
+      - name: Install board core
+        run: |
+          arduino-cli core update-index
+          arduino-cli core install "${{ matrix.core }}"
+
+      - name: Compile RegisterDump
+        run: arduino-cli compile --fqbn "${{ matrix.fqbn }}" --library . examples/RegisterDump
+
+      - name: Compile BasicRead
+        run: arduino-cli compile --fqbn "${{ matrix.fqbn }}" --library . examples/BasicRead

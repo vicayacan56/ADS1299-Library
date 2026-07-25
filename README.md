@@ -161,3 +161,7 @@ void loop() {
 - [API reference](docs/api-reference.md)
 - [Testing without hardware](docs/testing-without-hardware.md)
 - [Troubleshooting](docs/troubleshooting.md)
+
+## License
+
+ADS1299Plus is released under the [MIT License](LICENSE).
