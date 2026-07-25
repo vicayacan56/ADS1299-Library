@@ -1090,6 +1090,43 @@ That complexity should be treated as transitional. `main` should remain simple, 
 Phase C8 - Arduino-focused release preparation
 ```
 
+## Phase E2 - HAL-only branch cleanup plan
+
+**Status:** Complete (planning only)
+
+### What was added
+
+- **`docs/architecture/hal-only-branch-cleanup-plan.md`**: Step-by-step plan for evolving `portable-core-hal` from a transitional two-path branch into a HAL-first/HAL-only branch.
+
+### Decision
+
+`main` should preserve the simple Arduino/SafeSPI library.
+
+`portable-core-hal` should not keep the classic SafeSPI route as its main execution path.
+
+The recommended long-term portable branch direction is:
+
+```text
+portable HAL-first class
+  -> ADS1299_Protocol
+  -> ADS1299_HAL
+  -> ArduinoHAL / future native backends
+```
+
+### Recommended implementation order
+
+1. Define the HAL-only public API.
+2. Introduce a portable HAL-only device class.
+3. Add HAL-only examples.
+4. Isolate or remove SafeSPI from the portable branch.
+5. Only then start a native backend spike such as STM32Cube HAL, ESP-IDF, or Zephyr native.
+
+### Recommended next phase
+
+```text
+Phase E3 - Define HAL-only public API
+```
+
 ## Phase C6.1 - Arduino CLI AVR compile fix
 
 **Status:** Complete (compile fix)
