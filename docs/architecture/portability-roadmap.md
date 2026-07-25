@@ -1157,6 +1157,48 @@ The proposed portable API requires `ADS1299_HAL`, avoids Arduino pin ownership, 
 Phase E4 - Introduce ADS1299_Device
 ```
 
+## Phase E4 - Introduce ADS1299_Device
+
+**Status:** Complete (additive HAL-only class)
+
+### What changed
+
+- Added `src/core/ADS1299_Device.h`.
+- Added `src/core/ADS1299_Device.cpp`.
+- Added `tests/host/test_ads1299_device.cpp`.
+- Added the HAL-only device test to `.github/workflows/host-tests.yml`.
+
+### Design outcome
+
+`ADS1299_Device` is the first HAL-only public facade for `portable-core-hal`.
+
+It uses:
+
+```text
+ADS1299_Device
+  -> ADS1299_Protocol
+  -> ADS1299_HAL
+```
+
+It does not include:
+
+- `Arduino.h`;
+- `SPI.h`;
+- `ADS1299_SafeSPI.h`;
+- Arduino pin structs.
+
+### Compatibility decision
+
+E4 is additive only.
+
+It does not remove `ADS1299Plus`, `ADS1299_SafeSPI`, or existing examples.
+
+### Recommended next phase
+
+```text
+Phase E5 - Add HAL-only examples
+```
+
 ## Phase C6.1 - Arduino CLI AVR compile fix
 
 **Status:** Complete (compile fix)
