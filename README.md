@@ -135,7 +135,9 @@ Most users need:
 - [docs/user/user-guide.md](docs/user/user-guide.md)
 - [docs/user/hal-usage-guide.md](docs/user/hal-usage-guide.md)
 - [docs/user/testing-without-hardware.md](docs/user/testing-without-hardware.md)
+- [docs/architecture/hal-branch-status.md](docs/architecture/hal-branch-status.md)
+- [docs/architecture/hal-backend-porting-guide.md](docs/architecture/hal-backend-porting-guide.md)
 - `examples/HalRegisterDump`
 - `examples/HalBasicRead`
 
-Maintainer notes and historical phase documents live under `docs/architecture/` and `docs/history/`.
+The documentation intentionally avoids old phase notes in this branch.
