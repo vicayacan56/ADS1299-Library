@@ -27,6 +27,7 @@ These documents explain the current internal design and release/readiness state:
 - [Portability Roadmap](architecture/portability-roadmap.md)
 - [Execution Paths and Release Strategy](architecture/execution-paths-and-release-strategy.md)
 - [HAL-Only Branch Cleanup Plan](architecture/hal-only-branch-cleanup-plan.md)
+- [HAL-Only Public API](architecture/hal-only-public-api.md)
 - [Final Usability Audit](architecture/final-usability-audit.md)
 - [UNO Q Hardware Smoke Test](architecture/phase-c7-hardware-smoke-test.md)
 - [Path B Closure Review](architecture/phase-b10-path-b-closure-review.md)

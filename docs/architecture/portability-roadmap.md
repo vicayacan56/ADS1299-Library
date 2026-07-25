@@ -1127,6 +1127,36 @@ portable HAL-first class
 Phase E3 - Define HAL-only public API
 ```
 
+## Phase E3 - Define HAL-only public API
+
+**Status:** Complete (API design only)
+
+### What was added
+
+- **`docs/architecture/hal-only-public-api.md`**: Proposed public API for the future HAL-only portable branch.
+
+### Decision
+
+The HAL-only branch should introduce a new portable device class:
+
+```text
+ADS1299_Device
+```
+
+`ADS1299Plus` should remain the Arduino-friendly public class for `main`.
+
+### Rationale
+
+A new class keeps the stable Arduino release simple and gives `portable-core-hal` a clean identity.
+
+The proposed portable API requires `ADS1299_HAL`, avoids Arduino pin ownership, and does not include `ADS1299_SafeSPI`.
+
+### Recommended next phase
+
+```text
+Phase E4 - Introduce ADS1299_Device
+```
+
 ## Phase C6.1 - Arduino CLI AVR compile fix
 
 **Status:** Complete (compile fix)
