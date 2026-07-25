@@ -1057,6 +1057,39 @@ This validates `ADS1299_ArduinoHAL` as a working reference backend for the curre
 Phase C8 - Release preparation
 ```
 
+## Phase E1 - Execution paths and release strategy
+
+**Status:** Complete (architecture clarification only)
+
+### What was added
+
+- **`docs/architecture/execution-paths-and-release-strategy.md`**: Plain-language explanation of the classic Arduino/SafeSPI path, the optional Arduino HAL path, why both currently exist, and how the public release should be positioned.
+
+### Decision
+
+The public release should stay Arduino-focused and simple.
+
+`portable-core-hal` should be treated as a validated HAL development branch that evolves toward a HAL-only architecture, not as the main public user story.
+
+The recommended branch split is:
+
+- `main`: stable Arduino/SafeSPI-focused release;
+- `portable-core-hal`: HAL-first portability development, eventually without the classic SafeSPI route.
+
+### Rationale
+
+The conservative HAL migration intentionally kept the classic Arduino path while adding the HAL path beside it.
+
+This reduced migration risk and preserved API compatibility, but it also introduced conceptual complexity.
+
+That complexity should be treated as transitional. `main` should remain simple, while `portable-core-hal` should be cleaned toward a HAL-only branch.
+
+### Recommended next phase
+
+```text
+Phase C8 - Arduino-focused release preparation
+```
+
 ## Phase C6.1 - Arduino CLI AVR compile fix
 
 **Status:** Complete (compile fix)
